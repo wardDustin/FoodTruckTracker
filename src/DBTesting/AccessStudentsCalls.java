@@ -1,4 +1,4 @@
-package FoodTruckPackage;
+package DBTesting;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,7 +18,7 @@ public class AccessStudentsCalls {
         final private String host = "localhost";
         final private String user = "root";
         final private String passwd = "MUtants13";
-        final private String database = "FoodTruckTracker";
+        final private String database = "Test";
 
         public void connectToDB() throws Exception {
                 try {

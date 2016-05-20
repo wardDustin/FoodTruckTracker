@@ -1,4 +1,4 @@
-package FoodTruckPackage;
+package DBTesting;
 
 public class MainStudentsCalls{
   public static void main(String[] args) throws Exception {

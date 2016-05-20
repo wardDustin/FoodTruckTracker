@@ -1,11 +1,15 @@
 package FoodTruckPackage;
 
 import java.sql.*;
+import java.util.Scanner;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 public class FoodTruck {
 	private String name;
 	private String owner;
 	private String foodType;
+	private foodMenu[] menu;
 	
 	public FoodTruck (String name, String owner, String foodType){
 		this.name = name;
@@ -37,29 +41,33 @@ public class FoodTruck {
 		this.foodType = foodType;
 	}
 	
-	public static void main(String[] args){
-		Connection conn = null;
+	public static void main(String[] args) throws Exception{
 		
-		try{
-			Class.forName("com.mysql.jdbc.Driver");
-			
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/stats", "root", "MUtants13");
-			Statement sqlState = conn.createStatement();
-			
-			String selectStuff = "SELECT franchName FROM teamsfranchises";
-			
-			ResultSet rows = sqlState.executeQuery(selectStuff);
-			
-			while(rows.next()){
-				System.out.println(rows.getString("franchName"));
-			}
-		}
-		catch(SQLException ex){
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-		catch(ClassNotFoundException e){
-			e.printStackTrace();
-		}
+		int x = 0;
+		foodTruckMenu menu = new foodTruckMenu();
+		do{
+			x = menu.startMenu();
+			menu.processInput(x);
+		}while (x!=6);
+		
+//		String passwd = "foobar";
+//		String hashed = BCrypt.hashpw(passwd, BCrypt.gensalt());
+//		System.out.println(hashed);
+//		if (BCrypt.checkpw(passwd, hashed))
+//			System.out.println("It matches");
+//		else
+//			System.out.println("It does not match");
+//		
+//		String userInsert = "INSERT IGNORE INTO FoodTruckTracker.User (username, password, name, address, email) VALUES ('drawnitsud', '" + hashed + "', 'Dustin W', '1600 Pennsylvania Ave', 'foo@bar.net')";
+//		
+//		String insert = "INSERT IGNORE INTO FoodTruckTracker.FoodTruck (truckName, owner, foodType) VALUES ('Rachels Radical (W)Raps','Rachel Ward','wraps')";
+//		Connect db = new Connect();
+//		db.connectToDB();
+//		db.insertDB(insert);
+//		db.insertDB(userInsert);
+//		db.queryUser();
+//		db.queryFoodTruck();
+//		
+//		db.close();
 	}
 }
