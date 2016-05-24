@@ -4,11 +4,21 @@ public class User {
 	private String name;
 	private String username;
 	private String address;
+	private String email;
 	
-	public User (String name, String username, String address){
+	public User (String name, String username, String address, String email){
 		this.name = name;
 		this.username = username;
 		this.address = address;
+		this.email = email;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getName() {

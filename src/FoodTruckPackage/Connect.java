@@ -1,14 +1,20 @@
 package FoodTruckPackage;
 
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 public class Connect{
 
     private Connection connect = null;
     private Statement statement = null;
+    private PreparedStatement prepState = null;
     private ResultSet resultSet = null;
     
     final private String host = "localhost";
@@ -71,14 +77,67 @@ public class Connect{
         }
     }
     
-    public void insertDB(String insert) throws Exception{
+    public ResultSet prepSelectQuery(String query, String input) throws SQLException{
+    	prepState = connect.prepareStatement(query);
+    	prepState.setString(1, input);
+    	resultSet = prepState.executeQuery();
+    	return resultSet;
+    }
+    
+    /*
+	 * BCrypt is a great encryption tool that uses a complex hash function
+	 * but also salts the password... 
+	 */
+    public String encryptPW(String passwd){
+    	String hashed = BCrypt.hashpw(passwd, BCrypt.gensalt());
+		System.out.println(hashed);
+		
+		return hashed;
+    }
+    
+    /*
+	 * This if/else statement simply confirms  or denies that the given password
+	 * matches a hashed password... if it returns true, the passwords are the same
+	 * if it returns false, the passwords are not the same
+	 */
+    public boolean passwordMatch(String passwd, String hashed){
+    	if (BCrypt.checkpw(passwd, hashed))
+			return true;
+		else
+			return false;
+    }
+    
+    public boolean insertUser(String insert, String username, String password, String name, String address, String email) throws Exception{
     	
     	try{
-            statement = connect.createStatement();
-            statement.executeUpdate(insert);
+            prepState = connect.prepareStatement(insert);
+            prepState.setString(1, username);
+            prepState.setString(2, password);
+            prepState.setString(3, name);
+            prepState.setString(4, address);
+            prepState.setString(5, email);
+            prepState.executeUpdate();
+            return true;
 	    }
-	    catch (Exception e){
-	    	throw e;
+	    catch (SQLException e) {
+	    	System.out.println(e);
+	    	return false;
+	    }
+    }
+    
+    public boolean insertFoodTruck(String insertQuery, String truckName, String pw, String owner, String foodType){
+    	try{
+            prepState = connect.prepareStatement(insertQuery);
+            prepState.setString(1, truckName);
+            prepState.setString(2, pw);
+            prepState.setString(3, owner);
+            prepState.setString(4, foodType);
+            prepState.executeUpdate();
+            return true;
+	    }
+	    catch (SQLException e) {
+	    	System.out.println(e);
+	    	return false;
 	    }
     }
 
