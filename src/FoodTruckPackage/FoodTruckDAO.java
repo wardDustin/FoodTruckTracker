@@ -4,14 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class FoodTruckDAO{
-	
-	private Connection connect = null;
-	private PreparedStatement prepState = null;
-	private Statement statement = null;
-	private ResultSet resultSet = null;
+	//TODO: This should be used for Create/ Read (get) / Update / Destroy
+	private Connection connect;
+	private PreparedStatement prepState;
+	private ResultSet resultSet;
 	private Connect database;
 	
 	public FoodTruckDAO(){
@@ -22,8 +20,25 @@ public class FoodTruckDAO{
 			e.printStackTrace();
 		}
 	}
-	
-	public ResultSet select(String truckName) throws Exception{
+    
+    public boolean insert(FoodTruck truckName){
+    	String insertQuery = "INSERT INTO FoodTruckTracker.FoodTruck (truckName, password, owner, foodType) VALUES (?,?,?,?)";
+    	try{
+            prepState = connect.prepareStatement(insertQuery);
+            prepState.setString(1, truckName.getName());
+            prepState.setString(2, truckName.getPassword());
+            prepState.setString(3, truckName.getOwner());
+            prepState.setString(4, truckName.getFoodType());
+            prepState.executeUpdate();
+            return true;
+	    }
+	    catch (SQLException e) {
+	    	System.out.println(e);
+	    	return false;
+	    }
+    }
+    
+    public ResultSet select(String truckName) throws Exception{
     	String queryDB = "SELECT * FROM FoodTruckTracker.FoodTruck WHERE truckName = ?";
         try{
         	prepState = connect.prepareStatement(queryDB);
@@ -34,22 +49,6 @@ public class FoodTruckDAO{
         catch (Exception e){
         	throw e;
         }
-    }
-    
-    public boolean insert(String insertQuery, String truckName, String pw, String owner, String foodType){
-    	try{
-            prepState = connect.prepareStatement(insertQuery);
-            prepState.setString(1, truckName);
-            prepState.setString(2, pw);
-            prepState.setString(3, owner);
-            prepState.setString(4, foodType);
-            prepState.executeUpdate();
-            return true;
-	    }
-	    catch (SQLException e) {
-	    	System.out.println(e);
-	    	return false;
-	    }
     }
 
 }

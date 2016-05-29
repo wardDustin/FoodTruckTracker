@@ -4,14 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class UserDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
-	private Connection connect = null;
-	private PreparedStatement prepState = null;
-	private Statement statement = null;
-	private ResultSet resultSet = null;
+	private Connection connect;
+	private PreparedStatement prepState;
+	private ResultSet resultSet;
 	private Connect database;
 	
 	public UserDAO(){
@@ -23,42 +21,15 @@ public class UserDAO{
 		}
 	}
 	
-	public void query() throws Exception{
-    	String queryDB = "SELECT * FROM FoodTruckTracker.User";
-        try{
-                statement = connect.createStatement();
-                resultSet = statement.executeQuery(queryDB);
-                
-        		while (resultSet.next()){
-        			String username = resultSet.getString("username");
-        			String password = resultSet.getString("password");
-        			String name = resultSet.getString("name");
-        			String address = resultSet.getString("address");
-        			String email = resultSet.getString("email");
-        			
-        			System.out.println("Username: " + username + "  Password: " + password + "  Name: " + name + "  Address: " + address + "  Email: " + email);
-        		}
-        }
-        catch (Exception e){
-        	throw e;
-        }
-    }
-	
-	public ResultSet prepSelectQuery(String query, String input) throws Exception{
-    	prepState = connect.prepareStatement(query);
-    	prepState.setString(1, input);
-    	resultSet = prepState.executeQuery();
-    	return resultSet;
-    }
-	
-	 public boolean insert(String insert, String username, String password, String name, String address, String email) throws Exception{
-	    try{
-            prepState = connect.prepareStatement(insert);
-            prepState.setString(1, username);
-            prepState.setString(2, password);
-            prepState.setString(3, name);
-            prepState.setString(4, address);
-            prepState.setString(5, email);
+	 public boolean insert(User newUser) throws Exception{
+		 String insertQuery = "INSERT INTO FoodTruckTracker.User (username, password, name, address, email) VALUES (?,?,?,?,?)";
+		 try{
+            prepState = connect.prepareStatement(insertQuery);
+            prepState.setString(1, newUser.getUsername());
+            prepState.setString(2, newUser.getPassword());
+            prepState.setString(3, newUser.getName());
+            prepState.setString(4, newUser.getAddress());
+            prepState.setString(5, newUser.getEmail());
             prepState.executeUpdate();
             return true;
 	    }
@@ -66,7 +37,42 @@ public class UserDAO{
 	    	System.out.println(e);
 	    	return false;
 	    }
-    }
-	
-
+	 }
+	 
+	 public ResultSet select(String query, String input) throws Exception{
+	    	prepState = connect.prepareStatement(query);
+	    	prepState.setString(1, input);
+	    	resultSet = prepState.executeQuery();
+	    	return resultSet;
+	    }
+	 
+	 public boolean update(String column, String newValue, String username){
+		 String updateQuery = "UPDATE FoodTruckTracker.User SET ? = ? WHERE username = ?";
+		 try{
+			 prepState = connect.prepareStatement(updateQuery);
+			 prepState.setString(1, column);
+			 prepState.setString(2, newValue);
+			 prepState.setString(3, username);
+			 prepState.executeUpdate();
+			 return true;
+		 }
+		 catch (SQLException e){
+			 System.out.println(e);
+			 return false;
+		 }
+	 }
+	 
+	 public boolean delete(String username){
+		 try{
+			 String deleteUser = "DELETE FROM FoodTruckTracker.User WHERE username = ?";
+			 prepState = connect.prepareStatement(deleteUser);
+			 prepState.setString(1, username);
+			 prepState.executeUpdate();
+			 return true;
+		 }
+		 catch (SQLException e){
+			 System.out.println(e);
+			 return false;
+		 }
+	 }
 }

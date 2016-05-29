@@ -3,6 +3,7 @@ package FoodTruckPackage;
 public class User {
 	private String name;
 	private String username;
+	private String password;
 	private String address;
 	private String email;
 	
@@ -44,6 +45,20 @@ public class User {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+	
+	public String getPassword(){
+		return this.password;
+	}
+	
+	public void setPassword(String newPassword){
+		this.password = newPassword;
+	}
+	
+	@Override
+	public String toString() {
+		return "Name = " + name + ", Username = " + username + ", Address = " + address
+				+ ", Email = " + email;
 	}
 	
 }

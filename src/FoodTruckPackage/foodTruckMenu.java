@@ -1,30 +1,41 @@
 package FoodTruckPackage;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class foodTruckMenu {
 
 	private Scanner input;
-	private ResultSet resultSet = null;
-	private UserDAO userDAO;
+	private ResultSet resultSet;
 	private HandlePW pwHandler;
+	private UserDAO userDAO;
 	private FoodTruckDAO foodDAO;
+	private MenuItemsDAO menuDAO;
+	private IngredientsDAO ingredientsDAO;
 	private ArrayList<MenuItems> menuArray;
+	private ArrayList<Ingredients> ingredientArray;
 	private FoodTruck truckOwner;
+	private User user;
 	private MenuItems menuItem;
+	private Ingredients ingredients;
 	
 	public static Connect database = new Connect();
 	
 	public foodTruckMenu(){
 		input = new Scanner(System.in);
-		userDAO = new UserDAO();
 		pwHandler = new HandlePW();
+		userDAO = new UserDAO();
 		foodDAO = new FoodTruckDAO();
+		menuDAO = new MenuItemsDAO();
+		ingredientsDAO = new IngredientsDAO();
 		menuArray = new ArrayList<MenuItems>();
+		ingredientArray = new ArrayList<Ingredients>();
+		user = new User();
 		truckOwner = new FoodTruck();
 		menuItem = new MenuItems();
+		ingredients = new Ingredients();
 	}
 	
 	public static void main(String[] args) throws Exception{
@@ -73,7 +84,7 @@ public class foodTruckMenu {
 			}
 			
 			String usernameQuery = "SELECT username FROM FoodTruckTracker.User WHERE username = ?";
-			resultSet = userDAO.prepSelectQuery(usernameQuery, username);
+			resultSet = userDAO.select(usernameQuery, username);
 			
 			if (!resultSet.next()){
 				System.out.println("Thank you for registering as a new User!");
@@ -90,11 +101,16 @@ public class foodTruckMenu {
 				System.out.println("And email:");
 				String email = input.nextLine();
 				
-				String insertQuery = "INSERT INTO FoodTruckTracker.User (username, password, name, address, email) VALUES (?,?,?,?,?)";
-				boolean success = userDAO.insert(insertQuery, username, pw, name, address, email);
+				user.setUsername(username);
+				user.setPassword(pw);
+				user.setName(name);
+				user.setAddress(address);
+				user.setEmail(email);
+				
+				boolean success = userDAO.insert(user);
 				if (success){
 					System.out.println("New User made!");
-					//TODO: call next step of process
+					System.out.println(user);
 					System.exit(0);
 				}
 				else{
@@ -184,9 +200,15 @@ public class foodTruckMenu {
 				System.out.println("And what is the food type being served? (e.g. Mexican, Chinese, Greek, BBQ, etc)");
 				String foodType = input.nextLine();
 				
-				String insertQuery = "INSERT INTO FoodTruckTracker.FoodTruck (truckName, password, owner, foodType) VALUES (?,?,?,?)";
-//				a = new FoodTruck (truckName, owner, foodType); not needed...
-				boolean success = foodDAO.insert(insertQuery, truckName, pw, owner, foodType);
+				truckOwner.setName(truckName);
+				truckOwner.setPassword(pw);
+				truckOwner.setOwner(owner);
+				truckOwner.setFoodType(foodType);
+				
+				boolean success = foodDAO.insert(truckOwner);
+				int truckID = getTruckID();
+				truckOwner.setTruckID(truckID);
+				
 				if (success){
 					System.out.println("New FoodTruck made!");
 					makeMenuItemOption();
@@ -194,7 +216,7 @@ public class foodTruckMenu {
 					System.exit(0);
 				}
 				else{
-					System.out.println("Error creating FoodTruck. Please contact owners");
+					System.out.println("Error creating FoodTruck. Please try again...");
 					System.exit(2);
 					//TODO: throw a real error and repeat the process?
 				}
@@ -217,12 +239,22 @@ public class foodTruckMenu {
 		return newInt;
 	}
 	
+	public float verifyInputFloat(float newFloat){
+		while(!input.hasNextFloat()){
+			input.next();
+			System.out.println("I need a float please: ");
+		}
+		newFloat = input.nextFloat();
+		input.nextLine();
+		return newFloat;
+	}
+	
 	public boolean confirmPW(String name, String column, String db) throws Exception{
 		String hashedpw = null;
 		String pw = input.nextLine();
 		
 		String passwordQuery = "SELECT password FROM " + db + " WHERE " + column + " = ?";
-		resultSet = userDAO.prepSelectQuery(passwordQuery, name);
+		resultSet = userDAO.select(passwordQuery, name);
 		
 		while(resultSet.next()){
 			hashedpw = resultSet.getString("password");
@@ -260,6 +292,7 @@ public class foodTruckMenu {
 		}while(x==1);
 		
 		System.out.println("Here is your menu: " + menuArray);
+		//TODO: fix
 		
 		return x;
 	}
@@ -269,26 +302,14 @@ public class foodTruckMenu {
 		System.out.println("What is the name of the food item you would like to add: ");
 		String title = input.nextLine();
 
-		
-		System.out.println("Sounds delicious. Let's add the ingredients!");
-		System.out.println("When you are done entering all the ingredients, hit 0 to quit");
-		int x = 0;
-		ArrayList<String> ingredients= new ArrayList<String>();
-		do{
-			System.out.println("(0 to exit) Ingredient " + (x+1) +": ");
-			String y = input.nextLine();
-			try{
-				if (Integer.parseInt(y)==0){
-					break;
-				}
-			}
-			catch(NumberFormatException e){
-				ingredients.add(y);
-			}
-			x++;
-		}while(x!=0);
-		
-		System.out.println(ingredients);
+		System.out.println("Sounds delicious!");
+		System.out.println("What is the price of " + title + "?");
+		float price = 0.0f;
+		price = verifyInputFloat(price);
+		while (price<0){
+			System.out.println("Price must be positive: ");
+			price = verifyInputFloat(price);
+		}
 		
 		System.out.println("How many calories does " + title + " contain?");
 		int calories = 0;
@@ -298,31 +319,91 @@ public class foodTruckMenu {
 			calories = verifyInput(calories);
 		}
 		
-		System.out.println("And finally, any special comments about your food?");
+		System.out.println("And any special comments about your food (e.g. gluten free, dairy free, etc)?");
 		String specialComments = input.nextLine();
 		
 		menuItem.setTitle(title);
-		menuItem.setIngredients(ingredients);
+		menuItem.setPrice(price);
 		menuItem.setTotalCalories(calories);
 		menuItem.setSpecialComments(specialComments);
-		//TODO: Add to Menu DB as individual items.... foreign key link
+		menuItem.setTruckID(truckOwner.getTruckID());
 		
-		menuArray.add(menuItem);
+		menuDAO.insert(menuItem);
+		int menuID = getMenuID();
+		
+		System.out.println("Finally, lets add the ingredients for " + title);
+		int x = 0;
+		do{
+			System.out.println("(0 to exit) Ingredient " + (x+1) +": ");
+			String y = input.nextLine();
+			try{
+				if (Integer.parseInt(y)==0){
+					break;
+				}
+				else{
+					continue;
+				}
+			}
+			catch(NumberFormatException e){
+				ingredients = new Ingredients();
+				ingredients.setName(y);
+				ingredients.setMenuID(menuID);
+				
+				ingredientsDAO.insert(ingredients);
+				ingredientArray.add(ingredients);
+			}
+			x++;
+		}while(x!=0);
+		
+		System.out.println(ingredientArray);
+		
+		menuItem.setIngredients(ingredientArray);
 	}
 	
-	public boolean parseSelect(ResultSet resultSet) throws Exception{
-		while (resultSet.next()){
-			int Id = resultSet.getInt("Id");
-			String truckName = resultSet.getString("truckName");
-			String owner = resultSet.getString("owner");
-			String foodType = resultSet.getString("foodType");
-			
-			System.out.println("Truck: " + truckName + "  Owner: " + owner + "  Food Category: " + foodType);
-			truckOwner.setName(truckName);
-			truckOwner.setOwner(owner);
-			truckOwner.setFoodType(foodType);
+	public boolean parseSelect(ResultSet resultSet){
+		try {
+			while (resultSet.next()){
+				int truckID = resultSet.getInt("truckID");
+				String truckName = resultSet.getString("truckName");
+				String owner = resultSet.getString("owner");
+				String foodType = resultSet.getString("foodType");
+				
+				System.out.println("Truck: " + truckName + "  Owner: " + owner + "  Food Category: " + foodType + "\n");
+				truckOwner.setTruckID(truckID);
+				truckOwner.setName(truckName);
+				truckOwner.setOwner(owner);
+				truckOwner.setFoodType(foodType);
+			}
 			return true;
+		} catch (SQLException e) {
+			System.out.println(e);
+			return false;
 		}
-		return false;
+	}
+	
+	public int getTruckID(){
+		int truckID = 0;
+		try {
+			resultSet = foodDAO.select(truckOwner.getName());
+			while (resultSet.next()){
+				truckID = resultSet.getInt("truckID");
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return truckID;
+	}
+	
+	public int getMenuID(){
+		int menuID = 0;
+		try {
+			resultSet = menuDAO.select(menuItem.getTitle());
+			while (resultSet.next()){
+				menuID = resultSet.getInt("menuID");
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return menuID;
 	}
 }

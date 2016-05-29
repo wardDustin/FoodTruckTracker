@@ -1,27 +1,29 @@
 package FoodTruckPackage;
 
-import java.sql.*;
 import java.util.ArrayList;
-import java.util.Scanner;
-
-import org.mindrot.jbcrypt.BCrypt;
 
 public class FoodTruck {
+	private int truckID;
 	private String name;
+	private String password;
 	private String owner;
 	private String location;
 	private String foodType;
-	private ArrayList<MenuItems> menuArray; //add, remove, list make all <----------
-	private Scanner input;
-	private MenuItems mi;
+	private ArrayList<MenuItems> menuItems; //add, remove, list make all <----------
 	
 	public FoodTruck() {}
 	public FoodTruck (String name, String owner, String foodType){
 		this.name = name;
 		this.owner = owner;
 		this.foodType = foodType;
-		input = new Scanner(System.in);
-		
+	}
+	
+	public int getTruckID(){
+		return this.truckID;
+	}
+	
+	public void setTruckID(int newTruckID){
+		this.truckID = newTruckID;
 	}
 
 	public String getName() {
@@ -34,6 +36,14 @@ public class FoodTruck {
 
 	public String getOwner() {
 		return this.owner;
+	}
+	
+	public String getPassword(){
+		return this.password;
+	}
+	
+	public void setPassword(String newPassword){
+		this.password = newPassword;
 	}
 
 	public void setOwner(String owner) {
@@ -57,41 +67,25 @@ public class FoodTruck {
 	}
 	
 	//Behaviors??
-	public void makeMenu(){
-		menuArray.add(mi);
+	public ArrayList<MenuItems> getMenuItems(){
+		return this.menuItems;
 	}
 	
-	public void removeFromMenu(int index){
-		menuArray.remove(index);
+	public void setMenuItems(ArrayList<MenuItems> newMenuItems){
+		this.menuItems = newMenuItems;
 	}
 	
-	public void listWholeMenu(){
-		menuArray.toString(); //might have to do more here
-	}
+//	public void removeFromMenu(int index){
+//		menuArray.remove(index);
+//	}
+	
+	//TODO: toString? removeMenuItems from ArrayList?
 	
 	
 	
 	public static void main(String[] args) throws Exception{
 		
-		FoodTruck r = new FoodTruck("Rachels rad (w)raps", "Rach", "wraps");
+//		FoodTruck r = new FoodTruck("Rachels rad (w)raps", "Rach", "wraps");
 		
-//		String passwd = "foobar";
-//		String hashed = BCrypt.hashpw(passwd, BCrypt.gensalt());
-//		System.out.println(hashed);
-//		if (BCrypt.checkpw(passwd, hashed))
-//			System.out.println("It matches");
-//		else
-//			System.out.println("It does not match");
-//		
-//		String userInsert = "INSERT IGNORE INTO FoodTruckTracker.User (username, password, name, address, email) VALUES ('drawnitsud', '" + hashed + "', 'Dustin W', '1600 Pennsylvania Ave', 'foo@bar.net')";
-//		
-////		String insert = "INSERT IGNORE INTO FoodTruckTracker.FoodTruck (truckName, owner, foodType) VALUES ('Rachels Radical (W)Raps','Rachel Ward','wraps')";
-//		
-//		Connect db = new Connect();
-//		db.connectToDB();
-//		db.queryUser();
-//		db.queryFoodTruck();
-//		
-//		db.close();
 	}
 }

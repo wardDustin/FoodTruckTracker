@@ -1,24 +1,23 @@
 package FoodTruckPackage;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class MenuItems{
 
 
 	private String title;
-	private ArrayList<String> ingredients;
+	private ArrayList<Ingredients> ingredients;
+	private float price;
 	private int totalCalories;
 	private String specialComments;
-	private Scanner input;
+	private int truckID;
 	
 	public MenuItems() {}
-	public MenuItems (String title, ArrayList<String> ingredients, int totalCalories, String specialComments){
+	public MenuItems (String title, float price, int totalCalories, String specialComments){
 		this.title = title;
-		this.ingredients = ingredients;
+		this.price = price;
 		this.totalCalories = totalCalories;
 		this.specialComments = specialComments;
-		input = new Scanner(System.in);
 	}
 
 	public String getTitle() {
@@ -29,12 +28,22 @@ public class MenuItems{
 		this.title = title;
 	}
 
-	public ArrayList<String> getIngredients() {
+	public ArrayList<Ingredients> getIngredients() {
 		return ingredients;
 	}
 
-	public void setIngredients(ArrayList<String> ingredients) {
+	public void setIngredients(ArrayList<Ingredients> ingredients) {
 		this.ingredients = ingredients;
+	}
+	
+	//TODO: remove Ingredients from ArrayList?
+	
+	public float getPrice(){
+		return this.price;
+	}
+	
+	public void setPrice(float newPrice){
+		this.price =  newPrice;
 	}
 
 	public int getTotalCalories() {
@@ -53,65 +62,14 @@ public class MenuItems{
 		this.specialComments = specialComments;
 	}
 	
-//	public MenuItems makeItem(){
-//		System.out.println("Let's build your menu!");
-//		System.out.println("What is the name of the food item you would like to add: ");
-//		this.setTitle(input.nextLine());
-//
-//		
-//		System.out.println("Sounds delicious. Let's add the ingredients!");
-//		System.out.println("When you are done entering all the ingredients, hit 0 to quit");
-//		int x = 0;
-//		do{
-//			System.out.println("(0 to exit) Ingredient " + (x+1) +": ");
-//			String y = input.nextLine();
-//			this.setIngredients(y);
-//			try{
-//				if (Integer.parseInt(y)==0){
-//					break;
-//				}
-//			}
-//			catch(NumberFormatException e){
-//				
-//			}
-//			x++;
-//		}while(x!=0);
-//		
-//		System.out.println(this.getIngredients());
-//		
-//		System.out.println("How many calories does " + this.title + " contain?");
-//		int selection = 0;
-//		selection = verifyInput(selection);
-//		while (selection > 0){
-//			this.setTotalCalories(selection);
-//			System.out.println("I need a positive integer please: ");
-//		}
-//		
-//		System.out.println("And finally, any special comments about your food?");
-//		this.setSpecialComments(input.nextLine());
-//		
-//		MenuItems a = new MenuItems(this.getTitle(), this.getIngredients(), this.getTotalCalories(), this.getSpecialComments());
-//		return a;
-//	}
-	
-	public static void main(String[] args){
-//		FoodTruck d = new FoodTruck("d", "dw", "bbq");
-		
-		
-		
+	public int getTruckID(){
+		return this.truckID;
 	}
 	
-	public int verifyInput(int newInt){
-		while (!input.hasNextInt()){
-			input.next();
-			System.out.println("I need an integer please: ");
-		}
-		newInt = input.nextInt();
-		input.nextLine();
-		return newInt;
+	public void setTruckID(int newTruckID){
+		this.truckID = newTruckID;
 	}
-
-	@Override
+	
 	public String toString() {
 		return "Title: " + title + ", Ingredients: " + ingredients + ", Total Calories: " + totalCalories
 				+ ", Special Comments: " + specialComments + "]";
