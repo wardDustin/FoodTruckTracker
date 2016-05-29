@@ -22,11 +22,15 @@ public class IngredientsDAO {
 	}
 	
 	public boolean insert(Ingredients ingredient){
-		String insertQuery = "";
+		String insertQuery = "INSERT INTO FoodTruckTracker.Ingredients (ingredient, menuID) VALUES (?,?)";
 		try{
+			prepState = connect.prepareStatement(insertQuery);
+			prepState.setString(1, ingredient.getName());
+			prepState.setInt(2, ingredient.getMenuID());
+			prepState.executeUpdate();
 			return true;
 		}
-		catch(Exception e){
+		catch(SQLException e){
 			System.out.println(e);
 			return false;
 		}

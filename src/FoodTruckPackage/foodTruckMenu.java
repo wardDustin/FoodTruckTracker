@@ -44,7 +44,7 @@ public class foodTruckMenu {
 		int x = 0;
 		foodTruckMenu menu = new foodTruckMenu();
 		do{
-			x = menu.startMenu(); //ask why make an instance? STATIC
+			x = menu.startMenu();
 			menu.processInput(x);
 		}while (x!=3);
 		
@@ -291,6 +291,8 @@ public class foodTruckMenu {
 			}
 		}while(x==1);
 		
+		truckOwner.setMenuItems(menuArray);
+		
 		System.out.println("Here is your menu: " + menuArray);
 		//TODO: fix
 		
@@ -298,6 +300,7 @@ public class foodTruckMenu {
 	}
 	
 	public void makeMenuItem(){
+		menuItem = new MenuItems();
 		System.out.println("Let's build your menu item!");
 		System.out.println("What is the name of the food item you would like to add: ");
 		String title = input.nextLine();
@@ -333,6 +336,7 @@ public class foodTruckMenu {
 		
 		System.out.println("Finally, lets add the ingredients for " + title);
 		int x = 0;
+		ingredientArray = new ArrayList<Ingredients>();
 		do{
 			System.out.println("(0 to exit) Ingredient " + (x+1) +": ");
 			String y = input.nextLine();
@@ -358,6 +362,7 @@ public class foodTruckMenu {
 		System.out.println(ingredientArray);
 		
 		menuItem.setIngredients(ingredientArray);
+		menuArray.add(menuItem);
 	}
 	
 	public boolean parseSelect(ResultSet resultSet){
