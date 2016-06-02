@@ -137,8 +137,7 @@ public class foodTruckMenu {
 						x++;
 					}
 					System.out.println("Unsuccessful login");
-					System.out.println("Exiting...");
-					System.exit(0);
+					exit();
 				}
 				else{
 					System.out.println("You are logged in!");
@@ -170,21 +169,18 @@ public class foodTruckMenu {
 						System.out.println("Password does not match Username! Please try again: ");
 						loggedIn = confirmPW(truckName, "truckName", db);
 						if(loggedIn){
-							System.out.println("You are logged in!");
-							x=2;
-							makeMenuItemOption();
-							System.exit(1);
+							System.out.println("You are logged in, " + truckOwner.getOwner()  + "!\n");
+							loggedInOwnerMenu();
+							System.exit(0);
 						}
 						x++;
 					}
 					System.out.println("Unsuccessful login");
-					System.out.println("Exiting...");
-					System.exit(0);
+					exit();
 				}
 				else{
-					System.out.println("You are logged in, " + truckOwner.getOwner()  + "!");
-					makeMenuItemOption();
-					//TODO: call next step of process
+					System.out.println("You are logged in, " + truckOwner.getOwner()  + "!\n");
+					loggedInOwnerMenu();
 					System.exit(0);
 				}
 			}
@@ -211,21 +207,18 @@ public class foodTruckMenu {
 				
 				if (success){
 					System.out.println("New FoodTruck made!");
-					makeMenuItemOption();
-					//TODO: call next step of process
+					loggedInOwnerMenu();
+					//TODO: see if this goes to the end of program...
 					System.exit(0);
 				}
 				else{
 					System.out.println("Error creating FoodTruck. Please try again...");
-					System.exit(2);
-					//TODO: throw a real error and repeat the process?
+					exit();
 				}
 			}
 		}
 		else if (selection == 3){
-			System.out.println("Exiting...");
-			System.out.println("Thank you for using FoodTruckTracker!");
-			System.exit(0);
+			exit();
 		}
 	}
 	
@@ -274,29 +267,18 @@ public class foodTruckMenu {
 		System.out.println("");
 	}
 	
-	public int makeMenuItemOption(){
-		int x = 0;
-		do {
-			System.out.println("Would you like to create and add items to your menu?");
-			System.out.println("1| Yes 2| No");
-			
-			x = verifyInput(x);
-			while (x!=1 && x!=2){
-				System.out.println("1| Yes 2| No");
-				x = verifyInput(x);
-			}
-			
-			if (x == 1){
-				makeMenuItem();
-			}
-		}while(x==1);
+	public void viewMenu(){
+		//TODO: first, get all of the menuItems by querying the table via the truckID key
+		//TODO: second, use the menuID's to 
 		
-		truckOwner.setMenuItems(menuArray);
 		
-		System.out.println("Here is your menu: " + menuArray);
-		//TODO: fix
+//		String ingredients1 = "SELECT ingredient FROM Ingredients WHERE menuID IN (6, 7)";
+//		String menus1 = "SELECT foodName, price, calories, specialComments, menuID FROM Menu WHERE truckID IN (25, 27)";
+		int truckID = getTruckID();
+		foodDAO.selectData(truckID);
+		parseViewSelect();
 		
-		return x;
+		
 	}
 	
 	public void makeMenuItem(){
@@ -363,6 +345,14 @@ public class foodTruckMenu {
 		
 		menuItem.setIngredients(ingredientArray);
 		menuArray.add(menuItem);
+		truckOwner.setMenuItems(menuArray);
+		System.out.println("Here is your menu: " + menuArray + "\n");
+	}
+	
+	public void deleteMenuItem(){
+		//TODO: show ordered menu first
+		//TODO: ask if they want to delete ingredients first
+		//TODO: then ask for whole menu items
 	}
 	
 	public boolean parseSelect(ResultSet resultSet){
@@ -378,12 +368,13 @@ public class foodTruckMenu {
 				truckOwner.setName(truckName);
 				truckOwner.setOwner(owner);
 				truckOwner.setFoodType(foodType);
+				return true;
 			}
-			return true;
+			return false;
 		} catch (SQLException e) {
 			System.out.println(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public int getTruckID(){
@@ -410,5 +401,55 @@ public class foodTruckMenu {
 			System.out.println(e);
 		}
 		return menuID;
+	}
+	
+	public void loggedInOwnerMenu(){
+		//TODO: handles all the features for a food truck owner logged in....
+		System.out.println("What would you like to do next?");
+		System.out.println("1| Create/Add to your menu  2| View/Delete items from your menu  3| Create a future event  4| View your events  5| Exit");
+		int selection = 0;
+		selection = verifyInput(selection);
+		
+		while (selection != 1 && selection != 2 && selection != 3 && selection!=4 && selection!=5){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verifyInput(selection);
+		}
+		
+		if (selection == 1){
+			makeMenuItem();
+			loggedInOwnerMenu();
+		}
+		else if (selection == 2){
+			viewMenu();
+			
+			//TODO: make this view part into a method so that it can be used again elsewhere
+			//SELECT mi.foodName, mi.price, mi.calories, mi.specialComments, ind.ingredient FROM FoodTruck ft LEFT JOIN Menu mi ON mi.truckID = ft.truckID LEFT JOIN Ingredients ind ON ind.menuID = mi.menuID;
+			
+		}
+		else if (selection == 3){
+			
+		}
+		else if (selection == 4){
+			
+		}
+		else{
+			exit();
+		}
+	}
+	
+	public void exit(){
+		System.out.println("Thank you for using FoodTruckTracker!");
+		System.out.println("Exiting...");
+		System.exit(0);
+	}
+	
+	public void parseViewSelect(){
+		try {
+			while (resultSet.next()){
+				
+			}
+		} catch (SQLException e) {
+			System.out.println(e);
+		}
 	}
 }

@@ -71,7 +71,7 @@ public class MenuItems{
 	}
 	
 	public String toString() {
-		return "Title: " + title + ", Ingredients: " + ingredients + ", Total Calories: " + totalCalories
+		return "Title: " + title + ", Price: $" + price + ", Ingredients: " + ingredients + ", Total Calories: " + totalCalories
 				+ ", Special Comments: " + specialComments + "]";
 	}
 
