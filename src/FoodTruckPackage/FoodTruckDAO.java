@@ -11,7 +11,6 @@ public class FoodTruckDAO{
 	private PreparedStatement prepState;
 	private ResultSet resultSet;
 	private Connect database;
-	private FoodTruck truckOwner;
 	
 	public FoodTruckDAO(){
 		database = new Connect();
@@ -52,11 +51,25 @@ public class FoodTruckDAO{
         }
     }
     
-    public ResultSet selectData(int truckID){
-    	String originalIdea = "SELECT mi.foodName, mi.price, mi.calories, mi.specialComments, ind.ingredient FROM FoodTruck ft LEFT JOIN Menu mi ON mi.truckID = ? LEFT JOIN Ingredients ind ON ind.menuID = mi.menuID";
+    public ResultSet firstQuery(int truckID){
+    	String firstQ = "SELECT menuID, foodName, price, calories, specialComments FROM Menu WHERE truckID = ?";
     	try{
-        	prepState = connect.prepareStatement(originalIdea);
+        	prepState = connect.prepareStatement(firstQ);
             prepState.setInt(1, truckID);
+            resultSet = prepState.executeQuery();
+            return resultSet;
+        }
+        catch (SQLException e){
+        	System.out.println(e);
+        }
+    	return resultSet;
+    }
+    
+    public ResultSet newQuery(int menuID){
+    	String secondQ = "SELECT ingredient FROM Ingredients WHERE menuID = ?";
+    	try{
+        	prepState = connect.prepareStatement(secondQ);
+            prepState.setInt(1, menuID);
             resultSet = prepState.executeQuery();
             return resultSet;
         }
