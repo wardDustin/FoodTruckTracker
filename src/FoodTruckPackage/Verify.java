@@ -1,13 +1,11 @@
 package FoodTruckPackage;
 
-import java.sql.ResultSet;
 import java.util.Scanner;
 
 import org.mindrot.jbcrypt.BCrypt;
 
 public class Verify {
 	private Scanner input = new Scanner(System.in);
-	private ResultSet resultSet;
 	private UserDAO userDAO = new UserDAO();
 	
 	
@@ -34,15 +32,9 @@ public class Verify {
 	}
 	
 	public boolean confirmPW(String name, String column, String db) throws Exception{
-		String hashedpw = null;
 		String pw = input.nextLine();
-		
 		String passwordQuery = "SELECT password FROM " + db + " WHERE " + column + " = ?";
-		resultSet = userDAO.select(passwordQuery, name);
-		
-		while(resultSet.next()){
-			hashedpw = resultSet.getString("password");
-		}
+		String hashedpw = userDAO.selectPW(passwordQuery, name);
 		
 		boolean itMatches = passwordMatch(pw, hashedpw);
 		if (itMatches){

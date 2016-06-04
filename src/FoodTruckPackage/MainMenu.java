@@ -10,6 +10,10 @@ public class MainMenu {
 	private UserService user = new UserService();
 	private Verify verify = new Verify();
 	
+	public MainMenu(){
+		
+	}
+	
 	public static void main(String[] args) throws Exception{
 		database.connectToDB();
 		

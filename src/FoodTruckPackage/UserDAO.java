@@ -39,12 +39,27 @@ public class UserDAO{
 	    }
 	 }
 	 
-	 public ResultSet select(String query, String input) throws Exception{
-	    	prepState = connect.prepareStatement(query);
-	    	prepState.setString(1, input);
-	    	resultSet = prepState.executeQuery();
-	    	return resultSet;
-	    }
+	 public boolean selectUsername(String username) throws Exception{
+		 String usernameQuery = "SELECT username FROM FoodTruckTracker.User WHERE username = ?";
+		 prepState = connect.prepareStatement(usernameQuery);
+		 prepState.setString(1, username);
+		 resultSet = prepState.executeQuery();
+		 if (resultSet.next()){
+			 return true;
+		 }
+		 return false;
+	 }
+	 
+	 public String selectPW(String passwordQuery, String username) throws Exception{
+		 String hashedpw = null;
+		 prepState = connect.prepareStatement(passwordQuery);
+		 prepState.setString(1, username);
+		 resultSet = prepState.executeQuery();
+		 if (resultSet.next()){
+			hashedpw = resultSet.getString("password");
+		 }
+		 return hashedpw;
+	 }
 	 
 	 public boolean update(String column, String newValue, String username){
 		 String updateQuery = "UPDATE FoodTruckTracker.User SET ? = ? WHERE username = ?";

@@ -1,11 +1,8 @@
 package FoodTruckPackage;
 
-import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class UserService {
-	
-	private ResultSet rs;
 	private Scanner input = new Scanner(System.in);
 	private MainMenu main = new MainMenu();
 	private User user = new User();
@@ -15,7 +12,6 @@ public class UserService {
 	public UserService(){}
 	
 	public void logUserIn() throws Exception{
-		String db = null;
 		System.out.println("Excellent! Welcome!!");
 		System.out.println("Let's check and see if you've used FoodTruckTracker before");
 		System.out.println("First, please enter a username no longer than 15 characters: ");
@@ -26,10 +22,9 @@ public class UserService {
 			username = input.nextLine();
 		}
 		
-		String usernameQuery = "SELECT username FROM FoodTruckTracker.User WHERE username = ?";
-		rs = userDAO.select(usernameQuery, username);
+		boolean found = userDAO.selectUsername(username);
 		
-		if (!rs.next()){
+		if (!found){
 			System.out.println("Thank you for registering as a new User!");
 			System.out.println("Create a password please: ");
 			String pw = input.nextLine();
@@ -64,8 +59,8 @@ public class UserService {
 		} 
 		else{
 			System.out.println("Thank you " + username + "!");
-			System.out.println("Password: ");
-			db = "FoodTruckTracker.User";
+			System.out.println("Create a password: ");
+			String db = "FoodTruckTracker.User";
 			boolean loggedIn = verify.confirmPW(username, "username", db);
 			if (!loggedIn){
 				int x = 0;
