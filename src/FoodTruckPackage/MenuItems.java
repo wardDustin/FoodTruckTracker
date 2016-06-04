@@ -79,7 +79,7 @@ public class MenuItems{
 		this.menuID = newMenuID;
 	}
 	
-	public String toString() {
+	public String toString() {//fix price... prints off as 0.0
 		return "\nTitle: " + title + ", Price: $" + price + ", Ingredients: " + ingredients + ", Total Calories: " + totalCalories
 				+ ", Special Comments: " + specialComments;
 	}

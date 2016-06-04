@@ -26,7 +26,7 @@ public class FoodTruckService {
 		
 		truckOwner = foodDAO.select(truckName);
 		
-		if (truckOwner == null){
+		if (truckOwner == null){//TODO: fix this!!
 			System.out.println("Thank you for registering " + truckName + "!");
 			System.out.println("Create a password please: ");
 			String pw = input.nextLine();
@@ -55,7 +55,7 @@ public class FoodTruckService {
 			}
 			else{
 				System.out.println("Error creating FoodTruck. Please try again...");
-//				exit();
+				exit();
 			}
 		}
 		else{
@@ -76,7 +76,7 @@ public class FoodTruckService {
 					x++;
 				}
 				System.out.println("Unsuccessful login");
-//				exit();
+				exit();
 			}
 			else{
 				System.out.println("You are logged in, " + truckOwner.getOwner()  + "!\n");
@@ -88,8 +88,8 @@ public class FoodTruckService {
 	
 	public void loggedInOwnerMenu(){
 		//TODO: handles all the features for a food truck owner logged in....
-		System.out.println("What would you like to do next?");
-		System.out.println("1| Change your truck information  2| Manage your menu  3| Manage your events  4| Exit");
+		System.out.println("" + truckOwner.getOwner() + ", what would you like to do next?");
+		System.out.println("1| Change your truck information  2| Manage your Menu  3| Manage your events  4| Exit");
 		int selection = 0;
 		selection = verify.verifyInput(selection);
 		
@@ -99,13 +99,204 @@ public class FoodTruckService {
 		}
 		
 		if (selection == 1){
-			
+			//TODO: truck info 
 		}
 		else if (selection == 2){
 			//TODO: figure out order...
-			viewMenu();
-			makeMenuItem();
-			loggedInOwnerMenu();
+			System.out.println("\nWelcome to your Menu menu! Here, you can: ");
+			System.out.println("1| View Menu  2| Add to your Menu  3| Update existing menu items  4| Delete menu items  5| Exit");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2 && selection != 3 && selection!=4 && selection!=5){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 1){
+				viewMenu();
+				loggedInOwnerMenu();
+			}
+			else if (selection == 2){
+				makeMenuItem();
+			}
+			else if (selection == 3){
+				int truckID = getTruckID();
+				ArrayList<String> listMenu = menuDAO.listMenu(truckID);//change listMenu to not contain the 
+				int x = listMenu.size();
+				for (int i = 0; i < x; i++){
+					System.out.println("" + (i+1) + "| " + listMenu.get(i));
+				}
+				System.out.println("\nWhich would you like to update?");
+				selection = verify.verifyInput(selection);
+				
+				while(selection<0 && selection>x){
+					System.out.println("Invalid Selection, please choose again!");
+					selection = verify.verifyInput(selection);
+				}
+				
+				String foodName = listMenu.get(selection-1);
+				System.out.println(foodName);
+				MenuItems menuItem = new MenuItems();
+				menuItem = menuDAO.getMenuItem(foodName, truckID);
+				int menuID = menuItem.getMenuID();
+				boolean yes = true;
+				System.out.println("Here is the menu item you selected:\n" + menuItem + "\n");
+				System.out.println("What part would you like to update?");
+				System.out.println("1| Food Title  2| Price  3| Total Calories  4| Special Comments  5| Ingredients  6| Nevermind");
+				selection = verify.verifyInput(selection);
+				
+				while(selection != 1 && selection != 2 && selection != 3 && selection!=4 && selection!=5 && selection!=6){
+					System.out.println("Invalid Selection, please choose again!");
+					System.out.println("1| Food Title  2| Price  3| Total Calories  4| Special Comments  5| Ingredients  6| Nevermind");
+					selection = verify.verifyInput(selection);
+				}
+				
+				if (selection == 1){
+					System.out.println("What is the name you would like to update " + menuItem.getTitle() + " to: ");
+					String title = input.nextLine();
+					boolean success = menuDAO.updateItem(yes, title, menuID);
+					if (success){
+						System.out.println("Updated successfully!\n");
+					}
+					else{
+						System.out.println("Update failed\n");
+					}
+					loggedInOwnerMenu();
+				}
+				else if (selection == 2){
+					System.out.println("What would you like to change the price to: ");
+					float price = 0.0f;
+					price = verify.verifyInputFloat(price);
+					while (price<0){
+						System.out.println("Price must be positive: ");
+						price = verify.verifyInputFloat(price);
+					}
+					boolean success = menuDAO.updateItem(price, menuID);
+					if (success){
+						System.out.println("Updated successfully!\n");
+					}
+					else{
+						System.out.println("Update failed\n");
+					}
+					loggedInOwnerMenu();
+				}
+				else if (selection == 3){
+					System.out.println("What are the total calories changing to: ");
+					int calories = 0;
+					calories = verify.verifyInput(calories);
+					while (calories < 0){
+						System.out.println("I need a positive integer please: ");
+						calories = verify.verifyInput(calories);
+					}
+					boolean success = menuDAO.updateItem(calories, menuID);
+					if (success){
+						System.out.println("Updated successfully!\n");
+					}
+					else{
+						System.out.println("Update failed\n");
+					}
+					loggedInOwnerMenu();
+				}
+				else if (selection == 4){
+					System.out.println("And any special comments about your food (e.g. gluten free, dairy free, etc)?");
+					String specialComments = input.nextLine();
+					yes = false;
+					boolean success = menuDAO.updateItem(yes, specialComments, menuID);
+					if (success){
+						System.out.println("Updated successfully!\n");
+					}
+					else{
+						System.out.println("Update failed\n");
+					}
+					loggedInOwnerMenu();
+				}
+				else if (selection == 5){
+					//TODO: individual ingredients... delete query and then an insert query
+					//TODO: make new methods in DAO boolean instead of void to make sure of success
+					System.out.println("Here are the list of ingredients: ");
+					
+					ArrayList<String> listIngredients = ingredientsDAO.listIngredients(menuItem.getMenuID()); //listIngredients
+					x = listIngredients.size();
+					for (int i = 0; i < x; i++){
+						System.out.println("" + (i+1) + "| " + listIngredients.get(i));
+					}
+					
+					System.out.println("Would you like to 1| Add ingredients  2| Remove ingredients  3| Nevermind ");
+					selection = verify.verifyInput(selection);
+					
+					while(selection!=1 && selection!=2 && selection!=3){
+						System.out.println("Invalid Selection, please choose again!");
+						selection = verify.verifyInput(selection);
+					}
+					
+					if (selection == 1){
+						System.out.println("Ok, lets add ingredients:");
+						int z = 0;
+						ingredientArray = new ArrayList<Ingredients>();
+						do{
+							System.out.println("(0 to exit) Ingredient " + (z+1) +": ");
+							String y = input.nextLine();
+							try{
+								if (Integer.parseInt(y)==0){
+									break;
+								}
+								else{
+									continue;
+								}
+							}
+							catch(NumberFormatException e){
+								ingredients = new Ingredients();
+								ingredients.setName(y);
+								ingredients.setMenuID(menuItem.getMenuID());
+								
+								boolean success = ingredientsDAO.insert(ingredients);
+								if (success){
+									System.out.println("Updated successfully!\n");
+								}
+								else{
+									System.out.println("Update failed\n");
+								}
+							}
+							z++;
+						}while(z!=0);
+						loggedInOwnerMenu();
+					}
+					else if(selection == 2){
+						//TODO: print off ingredients with numbers (like menuItems)
+						System.out.println("Which ingredient would you like to remove: ");
+						selection = verify.verifyInput(selection);
+						
+						while(selection<0 && selection>x){
+							System.out.println("Invalid Selection, please choose again!");
+							selection = verify.verifyInput(selection);
+						}
+						
+						String selectedIng = listIngredients.get(selection-1);
+						
+						boolean success = ingredientsDAO.deleteIngredient(selectedIng);
+						if (success){
+							System.out.println("Deletion successfull!\n");
+						}
+						else{
+							System.out.println("Deletion failed\n");
+						}
+						
+						loggedInOwnerMenu();
+					}
+					else{
+						loggedInOwnerMenu();
+					}
+				}
+				else{
+					loggedInOwnerMenu();
+				}
+			}
+			else if (selection == 4){
+				
+			}
+			else{
+				exit();
+			}
 			
 			//TODO: make this view part into a method so that it can be used again elsewhere
 		}
@@ -122,7 +313,7 @@ public class FoodTruckService {
 		int truckID = getTruckID();
 		menuArray = new ArrayList<MenuItems>();
 		System.out.println("Your current menu: ");
-		menuArray = foodDAO.getMenu(truckID);
+		menuArray = menuDAO.getMenu(truckID);
 		System.out.println(menuArray + "\n");
 	}
 	
@@ -162,6 +353,7 @@ public class FoodTruckService {
 		menuDAO.insert(menuItem);
 		int menuID = getMenuID();
 		
+		//TODO: fix!
 		System.out.println("Finally, lets add the ingredients for " + title);
 		int x = 0;
 		ingredientArray = new ArrayList<Ingredients>();
@@ -181,7 +373,7 @@ public class FoodTruckService {
 				ingredients.setName(y);
 				ingredients.setMenuID(menuID);
 				
-				ingredientsDAO.insert(ingredients);
+				ingredientsDAO.insert(ingredients); //error here???
 				ingredientArray.add(ingredients);
 			}
 			x++;

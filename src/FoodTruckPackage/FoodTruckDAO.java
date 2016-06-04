@@ -4,14 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class FoodTruckDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
 	private Connection connect;
 	private PreparedStatement prepState;
 	private Connect database = new Connect();
-	private Ingredients ingredients = new Ingredients();
 	
 	public FoodTruckDAO(){
 		try {
@@ -60,55 +58,5 @@ public class FoodTruckDAO{
         	throw e;
         }
         return truckOwner;
-    }
-    
-    public ArrayList<MenuItems> getMenu(int truckID){
-    	String firstQ = "SELECT menuID, foodName, price, calories, specialComments FROM Menu WHERE truckID = ?";
-    	ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
-    	ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
-    	ResultSet resultSet;
-    	try{
-        	prepState = connect.prepareStatement(firstQ);
-            prepState.setInt(1, truckID);
-            resultSet = prepState.executeQuery();
-            
-    		while (resultSet.next()){
-				MenuItems menuItem = new MenuItems();
-				menuItem.setMenuID(resultSet.getInt("menuID"));
-				menuItem.setTitle(resultSet.getString("foodName"));
-				menuItem.setPrice(resultSet.getFloat("price"));
-				menuItem.setTotalCalories(resultSet.getInt("calories"));
-				menuItem.setSpecialComments(resultSet.getString("specialComments"));
-				
-				ingredientArray = getIngredients(menuItem.getMenuID());
-				menuItem.setIngredients(ingredientArray);
-				menuArray.add(menuItem);
-			}
-		} catch (SQLException e) {
-			System.out.println(e);
-		}
-		return menuArray;
-    }
-    
-    public ArrayList<Ingredients> getIngredients(int menuID){
-    	String secondQ = "SELECT ingredient FROM Ingredients WHERE menuID = ?";
-    	ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
-    	ResultSet resultSet;
-    	try{
-        	prepState = connect.prepareStatement(secondQ);
-            prepState.setInt(1, menuID);
-            resultSet = prepState.executeQuery();
-            
-            while (resultSet.next()){
-				ingredients = new Ingredients();
-				ingredients.setName(resultSet.getString("ingredient"));
-				ingredientArray.add(ingredients);
-			}
-			return ingredientArray;
-		}
-		catch (SQLException e){
-			System.out.println(e);
-		}
-		return ingredientArray;
     }
 }
