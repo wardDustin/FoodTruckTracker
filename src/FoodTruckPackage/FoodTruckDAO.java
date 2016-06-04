@@ -10,13 +10,8 @@ public class FoodTruckDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
 	private Connection connect;
 	private PreparedStatement prepState;
-	private ResultSet resultSet;
 	private Connect database = new Connect();
-	private FoodTruck truckOwner = new FoodTruck();
-	private MenuItems menuItem = new MenuItems();
 	private Ingredients ingredients = new Ingredients();
-	private ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
-	private ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
 	
 	public FoodTruckDAO(){
 		try {
@@ -44,28 +39,21 @@ public class FoodTruckDAO{
     }
     
     public FoodTruck select(String trucksName) throws Exception{
-    	String queryDB = "SELECT * FROM FoodTruckTracker.FoodTruck WHERE truckName = ?";
+    	String queryDB = "SELECT truckID, truckName, password, owner, foodType FROM FoodTruckTracker.FoodTruck WHERE truckName = ?";
+    	ResultSet resultSet;
+    	FoodTruck truckOwner = new FoodTruck();
         try{
         	prepState = connect.prepareStatement(queryDB);
             prepState.setString(1, trucksName);
             resultSet = prepState.executeQuery();
             
-            if (!resultSet.next()){
-            	return null;
-            }
-            
 			while (resultSet.next()){
-				int truckID = resultSet.getInt("truckID");
-				String truckName = resultSet.getString("truckName");
-				String owner = resultSet.getString("owner");
-				String foodType = resultSet.getString("foodType");
+				truckOwner.setTruckID(resultSet.getInt("truckID"));
+				truckOwner.setName(resultSet.getString("truckName"));
+				truckOwner.setOwner(resultSet.getString("owner"));
+				truckOwner.setFoodType(resultSet.getString("foodType"));
 				
-				System.out.println("Truck: " + truckName + "  Owner: " + owner + "  Food Category: " + foodType + "\n");
-				truckOwner = new FoodTruck();
-				truckOwner.setTruckID(truckID);
-				truckOwner.setName(truckName);
-				truckOwner.setOwner(owner);
-				truckOwner.setFoodType(foodType);
+				System.out.println("Truck: " + truckOwner.getName() + "  Owner: " + truckOwner.getOwner() + "  Food Category: " + truckOwner.getFoodType() + "\n");
     		}
         }
         catch (SQLException e){
@@ -76,26 +64,23 @@ public class FoodTruckDAO{
     
     public ArrayList<MenuItems> getMenu(int truckID){
     	String firstQ = "SELECT menuID, foodName, price, calories, specialComments FROM Menu WHERE truckID = ?";
-    	menuArray = new ArrayList<MenuItems>();
+    	ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
+    	ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
+    	ResultSet resultSet;
     	try{
         	prepState = connect.prepareStatement(firstQ);
             prepState.setInt(1, truckID);
             resultSet = prepState.executeQuery();
             
     		while (resultSet.next()){
-				int menuID = resultSet.getInt("menuID");
-				String foodName = resultSet.getString("foodName");
-				float price = resultSet.getFloat("price");
-				int calories = resultSet.getInt("calories");
-				String specialComments = resultSet.getString("specialComments");
+				MenuItems menuItem = new MenuItems();
+				menuItem.setMenuID(resultSet.getInt("menuID"));
+				menuItem.setTitle(resultSet.getString("foodName"));
+				menuItem.setPrice(resultSet.getFloat("price"));
+				menuItem.setTotalCalories(resultSet.getInt("calories"));
+				menuItem.setSpecialComments(resultSet.getString("specialComments"));
 				
-				menuItem = new MenuItems();
-				menuItem.setTitle(foodName);
-				menuItem.setPrice(price);
-				menuItem.setTotalCalories(calories);
-				menuItem.setSpecialComments(specialComments);
-				
-				ingredientArray = getIngredients(menuID);
+				ingredientArray = getIngredients(menuItem.getMenuID());
 				menuItem.setIngredients(ingredientArray);
 				menuArray.add(menuItem);
 			}
@@ -107,17 +92,16 @@ public class FoodTruckDAO{
     
     public ArrayList<Ingredients> getIngredients(int menuID){
     	String secondQ = "SELECT ingredient FROM Ingredients WHERE menuID = ?";
-    	ingredientArray = new ArrayList<Ingredients>();
+    	ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
+    	ResultSet resultSet;
     	try{
         	prepState = connect.prepareStatement(secondQ);
             prepState.setInt(1, menuID);
             resultSet = prepState.executeQuery();
             
             while (resultSet.next()){
-				String ingredient = resultSet.getString("ingredient");
-				
 				ingredients = new Ingredients();
-				ingredients.setName(ingredient);
+				ingredients.setName(resultSet.getString("ingredient"));
 				ingredientArray.add(ingredients);
 			}
 			return ingredientArray;

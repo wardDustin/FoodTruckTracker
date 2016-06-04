@@ -6,12 +6,16 @@ import java.sql.SQLException;
 public class MainMenu {
 	public static Connect database = new Connect();
 
-	private FoodTruck truckOwner = new FoodTruck();
-	private UserService user = new UserService();
-	private Verify verify = new Verify();
+	private FoodTruck truckOwner;
+	private FoodTruckService truckService;
+	private UserService user;
+	private Verify verify;
 	
 	public MainMenu(){
-		
+		truckOwner = new FoodTruck();
+		truckService = new FoodTruckService();
+		user = new UserService();
+		verify = new Verify();
 	}
 	
 	public static void main(String[] args) throws Exception{
@@ -53,8 +57,8 @@ public class MainMenu {
 		user.logUserIn();
 	}
 	
-	public void processFoodTruckActions(){
-		
+	public void processFoodTruckActions() throws Exception{
+		truckService.logOwnerIn();
 	}
 	
 	public boolean parseSelect(ResultSet resultSet){
@@ -77,11 +81,5 @@ public class MainMenu {
 			System.out.println(e);
 		}
 		return false;
-	}
-	
-	public void exit(){
-		System.out.println("Thank you for using FoodTruckTracker!");
-		System.out.println("Exiting...");
-		System.exit(0);
 	}
 }

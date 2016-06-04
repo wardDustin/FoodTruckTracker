@@ -3,13 +3,17 @@ package FoodTruckPackage;
 import java.util.Scanner;
 
 public class UserService {
-	private Scanner input = new Scanner(System.in);
-	private MainMenu main = new MainMenu();
-	private User user = new User();
-	private UserDAO userDAO = new UserDAO();
-	private Verify verify = new Verify();
+	private Scanner input;
+	private User user;
+	private UserDAO userDAO;
+	private Verify verify;
 	
-	public UserService(){}
+	public UserService(){
+		input = new Scanner(System.in);
+		user = new User();
+		userDAO = new UserDAO();
+		verify = new Verify();
+	}
 	
 	public void logUserIn() throws Exception{
 		System.out.println("Excellent! Welcome!!");
@@ -49,12 +53,12 @@ public class UserService {
 			if (success){
 				System.out.println("New User made!");
 				System.out.println(user);
-				main.exit();
+				exit();
 			}
 			else{
 				System.out.println("Something is wrong here");
 				//TODO: fix
-				main.exit();
+				exit();
 			}
 		} 
 		else{
@@ -71,19 +75,25 @@ public class UserService {
 						System.out.println("You are logged in");
 						x=2;
 						//TODO: call next step of process
-						main.exit();
+						exit();
 					}
 					x++;
 				}
 				System.out.println("Unsuccessful login");
 				//TODO: either exit or re-call beginning of program
-				main.exit();
+				exit();
 			}
 			else{
 				System.out.println("You are logged in!");
 				//TODO: call next step of process
-				main.exit();
+				exit();
 			}
 		}
+	}
+	
+	public void exit(){
+		System.out.println("Thank you for using FoodTruckTracker!");
+		System.out.println("Exiting...");
+		System.exit(0);
 	}
 }

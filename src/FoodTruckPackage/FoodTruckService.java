@@ -9,11 +9,10 @@ public class FoodTruckService {
 	private Verify verify = new Verify();
 	private FoodTruck truckOwner = new FoodTruck();
 	private FoodTruckDAO foodDAO = new FoodTruckDAO();
-	private MenuItems menuItem = new MenuItems();
 	private Ingredients ingredients = new Ingredients();
 	private MenuItemsDAO menuDAO = new MenuItemsDAO();
 	private IngredientsDAO ingredientsDAO = new IngredientsDAO();
-	private ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
+//	private ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
 	private ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
 	
 	public FoodTruckService(){}
@@ -56,7 +55,7 @@ public class FoodTruckService {
 			}
 			else{
 				System.out.println("Error creating FoodTruck. Please try again...");
-//				menu.exit();
+//				exit();
 			}
 		}
 		else{
@@ -77,7 +76,7 @@ public class FoodTruckService {
 					x++;
 				}
 				System.out.println("Unsuccessful login");
-//				menu.exit();
+//				exit();
 			}
 			else{
 				System.out.println("You are logged in, " + truckOwner.getOwner()  + "!\n");
@@ -109,28 +108,27 @@ public class FoodTruckService {
 			loggedInOwnerMenu();
 			
 			//TODO: make this view part into a method so that it can be used again elsewhere
-			//SELECT mi.foodName, mi.price, mi.calories, mi.specialComments, ind.ingredient FROM FoodTruck ft LEFT JOIN Menu mi ON mi.truckID = ft.truckID LEFT JOIN Ingredients ind ON ind.menuID = mi.menuID;
-			
 		}
 		else if (selection == 3){
 			
 		}
 		else{
-//			menu.exit();
+//			exit();
 		}
 	}
 	
 	public void viewMenu(){
+		ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
 		int truckID = getTruckID();
 		menuArray = new ArrayList<MenuItems>();
 		System.out.println("Your current menu: ");
 		menuArray = foodDAO.getMenu(truckID);
 		System.out.println(menuArray + "\n");
-//		menu.exit();
 	}
 	
 	public void makeMenuItem(){
-		menuItem = new MenuItems();
+		ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
+		MenuItems menuItem = new MenuItems();
 		System.out.println("Let's build your menu item!");
 		System.out.println("What is the name of the food item you would like to add: ");
 		String title = input.nextLine();
@@ -215,6 +213,7 @@ public class FoodTruckService {
 	}
 	
 	public int getMenuID(){
+		MenuItems menuItem = new MenuItems();
 		int menuID = 0;
 		try {
 			menuItem = menuDAO.select(menuItem.getTitle());
@@ -223,5 +222,11 @@ public class FoodTruckService {
 			System.out.println(e);
 		}
 		return menuID;
+	}
+	
+	public void exit(){
+		System.out.println("Thank you for using FoodTruckTracker!");
+		System.out.println("Exiting...");
+		System.exit(0);
 	}
 }
