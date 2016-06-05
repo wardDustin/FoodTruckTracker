@@ -243,4 +243,20 @@ public class MenuItemsDAO {
     	}
     	return true;
     }
+    
+    public boolean deleteMenuItem(String foodName, int truckID){
+    	String delete = "DELETE FROM FoodTruckTracker.Menu WHERE foodName = ? AND truckID = ?";
+    	try{
+    		prepState = connect.prepareStatement(delete);
+    		prepState.setString(1, foodName);
+    		prepState.setInt(2, truckID);
+    		prepState.executeUpdate();
+    		prepState.close();
+    	}
+    	catch (SQLException e){
+    		System.out.println(e);
+    		return false;
+    	}
+    	return true;
+    }
 }

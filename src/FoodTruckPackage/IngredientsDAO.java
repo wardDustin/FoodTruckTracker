@@ -74,5 +74,20 @@ public class IngredientsDAO {
     	}
     	return ingredientList;
     }
+	
+	public boolean deleteAllIngredients(int menuID){
+		String delete = "DELETE FROM FoodTruckTracker.Ingredients WHERE menuID = ?";
+		try{
+			prepState = connect.prepareStatement(delete);
+			prepState.setInt(1, menuID);
+			prepState.executeUpdate();
+			prepState.close();
+		}
+		catch(SQLException e){
+			System.out.println(e);
+			return false;
+		}
+		return true;
+	}
 
 }

@@ -60,4 +60,30 @@ public class FoodTruckDAO{
         }
         return truckOwner;
     }
+    
+    public boolean update(int x, String newInput, int truckID){
+    	String update = "";
+    	if (x == 1){
+    		update = "UPDATE FoodTruckTracker.FoodTruck SET truckName = ? WHERE truckID = ?";
+    	}
+    	else if (x == 2){
+    		update = "UPDATE FoodTruckTracker.FoodTruck SET owner = ? WHERE truckID = ?";
+    	}
+    	else{
+    		update = "UPDATE FoodTruckTracker.FoodTruck SET foodType = ? WHERE truckID = ?";
+    	}
+    	
+    	try{
+    		prepState = connect.prepareStatement(update);
+    		prepState.setString(1, newInput);
+    		prepState.setInt(2, truckID);
+    		prepState.executeUpdate();
+    		prepState.close();
+    	}
+    	catch (SQLException e){
+    		System.out.println(e);
+    		return false;
+    	}
+    	return true;
+    }
 }
