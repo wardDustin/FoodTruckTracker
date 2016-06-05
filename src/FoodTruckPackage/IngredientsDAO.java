@@ -10,7 +10,6 @@ import java.util.ArrayList;
 public class IngredientsDAO {
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
 	private Connection connect;
-	private PreparedStatement prepState;
 	private Connect database;
 	
 	public IngredientsDAO(){
@@ -24,12 +23,10 @@ public class IngredientsDAO {
 	
 	public boolean insert(Ingredients ingredient){
 		String insertQuery = "INSERT INTO FoodTruckTracker.Ingredients (ingredient, menuID) VALUES (?,?)";
-		try{
-			prepState = connect.prepareStatement(insertQuery);
+		try(PreparedStatement prepState = connect.prepareStatement(insertQuery)){
 			prepState.setString(1, ingredient.getName());
 			prepState.setInt(2, ingredient.getMenuID());
 			prepState.executeUpdate();
-			prepState.close();
 		}
 		catch(SQLException e){
 			System.out.println(e);
@@ -40,11 +37,9 @@ public class IngredientsDAO {
 	
 	public boolean deleteIngredient(String removeIng){
 		String delete = "DELETE FROM FoodTruckTracker.Ingredients WHERE ingredient = ?";
-		try{
-			prepState = connect.prepareStatement(delete);
+		try(PreparedStatement prepState = connect.prepareStatement(delete)){
 			prepState.setString(1, removeIng);
 			prepState.executeUpdate();
-			prepState.close();
 		}
 		catch(SQLException e){
 			System.out.println(e);
@@ -56,17 +51,15 @@ public class IngredientsDAO {
 	public ArrayList<String> listIngredients(int menuID){
     	String query = "SELECT ingredient FROM FoodTruckTracker.Ingredients WHERE menuID = ?";
     	ArrayList<String> ingredientList = new ArrayList<String>();
-    	ResultSet rs;
-    	try{
-    		prepState = connect.prepareStatement(query);
+    	try(PreparedStatement prepState = connect.prepareStatement(query)){
     		prepState.setInt(1, menuID);
-    		rs = prepState.executeQuery();
-    		
-    		while (rs.next()){
-    			Ingredients ingredient = new Ingredients();
-    			ingredient.setName(rs.getString("ingredient"));
-				
-				ingredientList.add(ingredient.getName());
+    		try(ResultSet rs = prepState.executeQuery()){
+    			while (rs.next()){
+	    			Ingredients ingredient = new Ingredients();
+	    			ingredient.setName(rs.getString("ingredient"));
+					
+					ingredientList.add(ingredient.getName());
+	    		}
     		}
     	}
     	catch(SQLException e){
@@ -77,11 +70,9 @@ public class IngredientsDAO {
 	
 	public boolean deleteAllIngredients(int menuID){
 		String delete = "DELETE FROM FoodTruckTracker.Ingredients WHERE menuID = ?";
-		try{
-			prepState = connect.prepareStatement(delete);
+		try(PreparedStatement prepState = connect.prepareStatement(delete)){
 			prepState.setInt(1, menuID);
 			prepState.executeUpdate();
-			prepState.close();
 		}
 		catch(SQLException e){
 			System.out.println(e);

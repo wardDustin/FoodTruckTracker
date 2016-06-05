@@ -8,14 +8,15 @@ public class FoodTruckService {
 	private Scanner input = new Scanner(System.in);
 	private Verify verify = new Verify();
 	private FoodTruck truckOwner = new FoodTruck();
-	private FoodTruckDAO foodDAO = new FoodTruckDAO();
+	private FoodTruckDAO foodDAO;
 	private Ingredients ingredients = new Ingredients();
 	private MenuItemsDAO menuDAO = new MenuItemsDAO();
 	private IngredientsDAO ingredientsDAO = new IngredientsDAO();
-//	private ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
 	private ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
 	
-	public FoodTruckService(){}
+	public FoodTruckService() throws Exception{
+		foodDAO = new FoodTruckDAO();
+	}
 
 	public void logOwnerIn() throws Exception{
 		String db = null;
@@ -110,7 +111,6 @@ public class FoodTruckService {
 		}
 		
 		if (selection == 1){
-			//TODO: truck info
 			int x = 0;
 			int truckID = truckOwner.getTruckID();
 			System.out.println("Truck: " + truckOwner.getName() + "  Owner: " + truckOwner.getOwner() + "  Food Category: " + truckOwner.getFoodType() + "\n");
@@ -141,6 +141,7 @@ public class FoodTruckService {
 				x = 1;
 				boolean success = foodDAO.update(x, newTruckName, truckID);
 				if (success){
+					truckOwner.setName(newTruckName);
 					System.out.println("Updated successfully!\n");
 				}
 				else{
@@ -150,22 +151,21 @@ public class FoodTruckService {
 				loggedInOwnerMenu();
 			}
 			else if (selection == 2){
-				//TODO: password change
 				System.out.println("Submit your (soon-to-be) old password: ");
 				String db = "FoodTruckTracker.FoodTruck";
-				boolean loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db);
+				boolean loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db);//TODO: not working
 				if (!loggedIn){
 					x = 0;
 					while(x<2){
 						System.out.println("Password does not match Username! Please try again: ");
-						loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db);
+						loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db);//fugnuggets
 						if(loggedIn){
 							boolean success = changePW();
 							if (success){
-								System.out.println("Updated successfully!\n");
+								System.out.println("Password updated successfully!\n");
 							}
 							else{
-								System.out.println("Update failed\n");
+								System.out.println("Password update failed\n");
 							}
 							loggedInOwnerMenu();
 						}
@@ -177,10 +177,10 @@ public class FoodTruckService {
 				else{
 					boolean success = changePW();
 					if (success){
-						System.out.println("Updated successfully!\n");
+						System.out.println("Password updated successfully!\n");
 					}
 					else{
-						System.out.println("Update failed\n");
+						System.out.println("Password update failed\n");
 					}
 					loggedInOwnerMenu();
 				}
@@ -203,6 +203,7 @@ public class FoodTruckService {
 				x = 2;
 				boolean success = foodDAO.update(x, newOwnerName, truckID);
 				if (success){
+					truckOwner.setOwner(newOwnerName);
 					System.out.println("Updated successfully!\n");
 				}
 				else{
@@ -229,6 +230,7 @@ public class FoodTruckService {
 				x = 3;
 				boolean success = foodDAO.update(x, newFoodType, truckID);
 				if (success){
+					truckOwner.setFoodType(newFoodType);
 					System.out.println("Updated successfully!\n");
 				}
 				else{
@@ -484,7 +486,7 @@ public class FoodTruckService {
 		}
 	}
 	
-	public void viewMenu(){
+	public void viewMenu() throws Exception{
 		ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
 		int truckID = getTruckID();
 		menuArray = new ArrayList<MenuItems>();
@@ -571,8 +573,39 @@ public class FoodTruckService {
 		System.out.println("Here is your menu: " + menuArray + "\n");
 	}
 	
-	public boolean changePW(){
+	public boolean changePW() throws Exception{
+		int x = 4;
+		System.out.println("Okay, now we need your new password: ");
+		String newInput = input.nextLine();
+		System.out.println("Please repeat new password: ");
+		String newInput2 = input.nextLine();
 		
+		int y = 0;
+		while (!newInput.equals(newInput2)){
+			if (y<3){
+				System.out.println("Passwords did not match. Please try again\n");
+				System.out.println("New password: ");
+				newInput = input.nextLine();
+				System.out.println("Repeat new password: ");
+				newInput2 = input.nextLine();
+				y++;
+			}
+			else{
+				System.out.println("Password change failure");
+				exit();
+			}
+		}
+		
+		String hashedPW = verify.encryptPW(newInput);
+		
+		boolean success = foodDAO.update(x, hashedPW, truckOwner.getTruckID());
+		if (success){
+			truckOwner.setPassword(hashedPW);
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	public int getTruckID(){

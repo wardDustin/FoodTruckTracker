@@ -1,5 +1,6 @@
 package FoodTruckPackage;
 
+//import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -11,7 +12,7 @@ public class MainMenu {
 	private UserService user;
 	private Verify verify;
 	
-	public MainMenu(){
+	public MainMenu() throws Exception{
 		truckOwner = new FoodTruck();
 		truckService = new FoodTruckService();
 		user = new UserService();
@@ -20,7 +21,6 @@ public class MainMenu {
 	
 	public static void main(String[] args) throws Exception{
 		database.connectToDB();
-		
 		int x = 0;
 		MainMenu menu = new MainMenu();
 		do{
@@ -28,12 +28,12 @@ public class MainMenu {
 			if (x==1){
 				menu.processUserActions();
 			}
-			else{
+			else if (x==2){
 				menu.processFoodTruckActions();
 			}
 		}while (x!=3);
-		
 		database.close();
+
 	}
 	
 	public int getUserType(){

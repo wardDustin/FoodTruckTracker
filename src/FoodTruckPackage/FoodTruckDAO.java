@@ -8,7 +8,6 @@ import java.sql.SQLException;
 public class FoodTruckDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
 	private Connection connect;
-	private PreparedStatement prepState;
 	private Connect database = new Connect();
 	
 	public FoodTruckDAO(){
@@ -21,14 +20,12 @@ public class FoodTruckDAO{
     
     public boolean insert(FoodTruck truckName){
     	String insertQuery = "INSERT INTO FoodTruckTracker.FoodTruck (truckName, password, owner, foodType) VALUES (?,?,?,?)";
-    	try{
-            prepState = connect.prepareStatement(insertQuery);
+    	try(PreparedStatement prepState = connect.prepareStatement(insertQuery)){
             prepState.setString(1, truckName.getName());
             prepState.setString(2, truckName.getPassword());
             prepState.setString(3, truckName.getOwner());
             prepState.setString(4, truckName.getFoodType());
             prepState.executeUpdate();
-            prepState.close();
 	    }
 	    catch (SQLException e) {
 	    	System.out.println(e);
@@ -39,21 +36,21 @@ public class FoodTruckDAO{
     
     public FoodTruck select(String trucksName) throws Exception{
     	String queryDB = "SELECT truckID, truckName, password, owner, foodType FROM FoodTruckTracker.FoodTruck WHERE truckName = ?";
-    	ResultSet resultSet;
     	FoodTruck truckOwner = new FoodTruck();
-        try{
-        	prepState = connect.prepareStatement(queryDB);
+        try(PreparedStatement prepState = connect.prepareStatement(queryDB)){
             prepState.setString(1, trucksName);
-            resultSet = prepState.executeQuery();
             
-			while (resultSet.next()){
-				truckOwner.setTruckID(resultSet.getInt("truckID"));
-				truckOwner.setName(resultSet.getString("truckName"));
-				truckOwner.setOwner(resultSet.getString("owner"));
-				truckOwner.setFoodType(resultSet.getString("foodType"));
-				
-				System.out.println("Truck: " + truckOwner.getName() + "  Owner: " + truckOwner.getOwner() + "  Food Category: " + truckOwner.getFoodType() + "\n");
-    		}
+            try(ResultSet resultSet = prepState.executeQuery() ){
+            
+				while (resultSet.next()){
+					truckOwner.setTruckID(resultSet.getInt("truckID"));
+					truckOwner.setName(resultSet.getString("truckName"));
+					truckOwner.setOwner(resultSet.getString("owner"));
+					truckOwner.setFoodType(resultSet.getString("foodType"));
+					
+					System.out.println("Truck: " + truckOwner.getName() + "  Owner: " + truckOwner.getOwner() + "  Food Category: " + truckOwner.getFoodType() + "\n");
+	    		}
+            }
         }
         catch (SQLException e){
         	throw e;
@@ -69,16 +66,17 @@ public class FoodTruckDAO{
     	else if (x == 2){
     		update = "UPDATE FoodTruckTracker.FoodTruck SET owner = ? WHERE truckID = ?";
     	}
-    	else{
+    	else if (x == 3){
     		update = "UPDATE FoodTruckTracker.FoodTruck SET foodType = ? WHERE truckID = ?";
     	}
+    	else{
+    		update = "UPDATE FoodTruckTracker.FoodTruck SET password = ? WHERE truckID = ?";
+    	}
     	
-    	try{
-    		prepState = connect.prepareStatement(update);
+    	try(PreparedStatement prepState = connect.prepareStatement(update)){
     		prepState.setString(1, newInput);
     		prepState.setInt(2, truckID);
     		prepState.executeUpdate();
-    		prepState.close();
     	}
     	catch (SQLException e){
     		System.out.println(e);
