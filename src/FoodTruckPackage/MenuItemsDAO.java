@@ -34,6 +34,7 @@ public class MenuItemsDAO {
 			prepState.setString(4, item.getSpecialComments());
 			prepState.setInt(5, item.getTruckID());
 			prepState.executeUpdate();
+			prepState.close();
 		}
 		catch(SQLException e){
 			System.out.println(e);
@@ -42,27 +43,40 @@ public class MenuItemsDAO {
 		return true;
 	}
 	
-	public MenuItems select(String foodsName) throws Exception{
-    	String queryDB = "SELECT menuID, foodName, price, calories, specialComments, truckID FROM FoodTruckTracker.Menu WHERE foodName = ?";
+	public boolean newTruck(int truckID){
+		String query = "SELECT menuID FROM FoodTruckTracker.Menu WHERE truckID = ?";
+		ResultSet rs;
+		try{
+			prepState = connect.prepareStatement(query);
+			prepState.setInt(1, truckID);
+			rs = prepState.executeQuery();
+			
+			if (rs.next()){
+				return true;
+			}
+		}
+		catch(SQLException e){
+			System.out.println(e);
+			return false;
+		}
+		return false;
+	}
+	
+	public MenuItems select(String foodsName, int trucksID) throws Exception{
+    	String queryDB = "SELECT menuID, foodName, price, calories, specialComments, truckID FROM FoodTruckTracker.Menu WHERE foodName = ? AND truckID = ?";
         try{
         	prepState = connect.prepareStatement(queryDB);
             prepState.setString(1, foodsName);
+            prepState.setInt(2, trucksID);
             rs = prepState.executeQuery();
             
             while (rs.next()){
-            	int menuID = rs.getInt("menuID");
-            	String foodName = rs.getString("foodName");
-            	float price = rs.getFloat("price");
-            	int calories = rs.getInt("calories");
-            	String specialComments = rs.getString("specialComments");
-            	int truckID = rs.getInt("truckID");
-            	
-            	menuItem.setMenuID(menuID);
-            	menuItem.setTitle(foodName);
-            	menuItem.setPrice(price);
-            	menuItem.setTotalCalories(calories);
-            	menuItem.setSpecialComments(specialComments);
-            	menuItem.setTruckID(truckID);
+            	menuItem.setMenuID(rs.getInt("menuID"));
+            	menuItem.setTitle(rs.getString("foodName"));
+            	menuItem.setPrice(rs.getFloat("price"));
+            	menuItem.setTotalCalories(rs.getInt("calories"));
+            	menuItem.setSpecialComments(rs.getString("specialComments"));
+            	menuItem.setTruckID(rs.getInt("truckID"));
             }
         }
         catch (Exception e){
@@ -189,6 +203,7 @@ public class MenuItemsDAO {
     		prepState.setString(1, input);
     		prepState.setInt(2, menuID);
     		prepState.executeUpdate();
+    		prepState.close();
     	}
     	catch(SQLException e){
     		System.out.println(e);
@@ -204,6 +219,7 @@ public class MenuItemsDAO {
     		prepState.setFloat(1, input);
     		prepState.setInt(2, menuID);
     		prepState.executeUpdate();
+    		prepState.close();
     	}
     	catch(SQLException e){
     		System.out.println(e);
@@ -219,6 +235,7 @@ public class MenuItemsDAO {
     		prepState.setInt(1, input);
     		prepState.setInt(2, menuID);
     		prepState.executeUpdate();
+    		prepState.close();
     	}
     	catch(SQLException e){
     		System.out.println(e);

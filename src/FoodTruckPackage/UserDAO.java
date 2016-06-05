@@ -31,12 +31,13 @@ public class UserDAO{
             prepState.setString(4, newUser.getAddress());
             prepState.setString(5, newUser.getEmail());
             prepState.executeUpdate();
-            return true;
+            prepState.close();
 	    }
 	    catch (SQLException e) {
 	    	System.out.println(e);
 	    	return false;
 	    }
+		 return true;
 	 }
 	 
 	 public boolean selectUsername(String username) throws Exception{
@@ -69,12 +70,13 @@ public class UserDAO{
 			 prepState.setString(2, newValue);
 			 prepState.setString(3, username);
 			 prepState.executeUpdate();
-			 return true;
+			 prepState.close();
 		 }
 		 catch (SQLException e){
 			 System.out.println(e);
 			 return false;
 		 }
+		 return true;
 	 }
 	 
 	 public boolean delete(String username){
@@ -83,11 +85,12 @@ public class UserDAO{
 			 prepState = connect.prepareStatement(deleteUser);
 			 prepState.setString(1, username);
 			 prepState.executeUpdate();
-			 return true;
+			 prepState.close();
 		 }
 		 catch (SQLException e){
 			 System.out.println(e);
 			 return false;
 		 }
+		 return true;
 	 }
 }

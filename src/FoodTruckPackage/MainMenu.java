@@ -37,8 +37,6 @@ public class MainMenu {
 	}
 	
 	public int getUserType(){
-		// TODO: give menu options
-		// TODO: return selection
 		int selection = 0;
 		System.out.println("Welcome to FoodTruckTracker!!");
 		System.out.println("Are you a User or an owner of a Food Truck?");

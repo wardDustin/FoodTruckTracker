@@ -26,7 +26,21 @@ public class FoodTruckService {
 		
 		truckOwner = foodDAO.select(truckName);
 		
-		if (truckOwner == null){//TODO: fix this!!
+		if (truckOwner.getName() == null){
+			System.out.println("" + truckName + " does not exist. Would you like to register this Truck?");
+			System.out.println("1| Yes  2| No");
+			int selection = 0;
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				exit();
+			}
+			
 			System.out.println("Thank you for registering " + truckName + "!");
 			System.out.println("Create a password please: ");
 			String pw = input.nextLine();
@@ -86,8 +100,7 @@ public class FoodTruckService {
 		}
 	}
 	
-	public void loggedInOwnerMenu(){
-		//TODO: handles all the features for a food truck owner logged in....
+	public void loggedInOwnerMenu() throws Exception{
 		System.out.println("" + truckOwner.getOwner() + ", what would you like to do next?");
 		System.out.println("1| Change your truck information  2| Manage your Menu  3| Manage your events  4| Exit");
 		int selection = 0;
@@ -101,8 +114,12 @@ public class FoodTruckService {
 		if (selection == 1){
 			//TODO: truck info 
 		}
-		else if (selection == 2){
-			//TODO: figure out order...
+		else if (selection == 2){ 
+			boolean hasAMenu = menuDAO.newTruck(truckOwner.getTruckID());
+			if (!hasAMenu){
+				makeMenuItem();
+			}
+			
 			System.out.println("\nWelcome to your Menu menu! Here, you can: ");
 			System.out.println("1| View Menu  2| Add to your Menu  3| Update existing menu items  4| Delete menu items  5| Exit");
 			selection = verify.verifyInput(selection);
@@ -118,10 +135,11 @@ public class FoodTruckService {
 			}
 			else if (selection == 2){
 				makeMenuItem();
+				loggedInOwnerMenu();
 			}
 			else if (selection == 3){
 				int truckID = getTruckID();
-				ArrayList<String> listMenu = menuDAO.listMenu(truckID);//change listMenu to not contain the 
+				ArrayList<String> listMenu = menuDAO.listMenu(truckID);
 				int x = listMenu.size();
 				for (int i = 0; i < x; i++){
 					System.out.println("" + (i+1) + "| " + listMenu.get(i));
@@ -292,16 +310,14 @@ public class FoodTruckService {
 				}
 			}
 			else if (selection == 4){
-				
+				//TODO: delete menuItems!
 			}
 			else{
 				exit();
 			}
-			
-			//TODO: make this view part into a method so that it can be used again elsewhere
 		}
 		else if (selection == 3){
-			
+			//TODO: Manage Events
 		}
 		else{
 //			exit();
@@ -317,10 +333,10 @@ public class FoodTruckService {
 		System.out.println(menuArray + "\n");
 	}
 	
-	public void makeMenuItem(){
+	public void makeMenuItem() throws Exception{
 		ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
 		MenuItems menuItem = new MenuItems();
-		System.out.println("Let's build your menu item!");
+		System.out.println("Let's build your Menu!");
 		System.out.println("What is the name of the food item you would like to add: ");
 		String title = input.nextLine();
 
@@ -351,7 +367,9 @@ public class FoodTruckService {
 		menuItem.setTruckID(truckOwner.getTruckID());
 		
 		menuDAO.insert(menuItem);
-		int menuID = getMenuID();
+		menuItem = menuDAO.getMenuItem(title, truckOwner.getTruckID());
+		int menuID = menuItem.getMenuID();
+		System.out.println(menuID);
 		
 		//TODO: fix!
 		System.out.println("Finally, lets add the ingredients for " + title);
@@ -373,7 +391,13 @@ public class FoodTruckService {
 				ingredients.setName(y);
 				ingredients.setMenuID(menuID);
 				
-				ingredientsDAO.insert(ingredients); //error here???
+				boolean success = ingredientsDAO.insert(ingredients); //error here???
+				if (success){
+					System.out.println("Updated successfully!\n");
+				}
+				else{
+					System.out.println("Update failed\n");
+				}
 				ingredientArray.add(ingredients);
 			}
 			x++;
@@ -395,25 +419,13 @@ public class FoodTruckService {
 	
 	public int getTruckID(){
 		int truckID = 0;
-		try {
+		try {	
 			truckOwner = foodDAO.select(truckOwner.getName());
 			truckID = truckOwner.getTruckID();
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 		return truckID;
-	}
-	
-	public int getMenuID(){
-		MenuItems menuItem = new MenuItems();
-		int menuID = 0;
-		try {
-			menuItem = menuDAO.select(menuItem.getTitle());
-			menuID = menuItem.getMenuID();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return menuID;
 	}
 	
 	public void exit(){

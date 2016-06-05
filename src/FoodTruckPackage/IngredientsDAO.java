@@ -29,6 +29,7 @@ public class IngredientsDAO {
 			prepState.setString(1, ingredient.getName());
 			prepState.setInt(2, ingredient.getMenuID());
 			prepState.executeUpdate();
+			prepState.close();
 		}
 		catch(SQLException e){
 			System.out.println(e);
@@ -43,6 +44,7 @@ public class IngredientsDAO {
 			prepState = connect.prepareStatement(delete);
 			prepState.setString(1, removeIng);
 			prepState.executeUpdate();
+			prepState.close();
 		}
 		catch(SQLException e){
 			System.out.println(e);

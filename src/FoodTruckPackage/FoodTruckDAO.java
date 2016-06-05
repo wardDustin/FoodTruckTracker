@@ -28,12 +28,13 @@ public class FoodTruckDAO{
             prepState.setString(3, truckName.getOwner());
             prepState.setString(4, truckName.getFoodType());
             prepState.executeUpdate();
-            return true;
+            prepState.close();
 	    }
 	    catch (SQLException e) {
 	    	System.out.println(e);
 	    	return false;
 	    }
+    	return true;
     }
     
     public FoodTruck select(String trucksName) throws Exception{
