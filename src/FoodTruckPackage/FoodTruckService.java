@@ -39,7 +39,7 @@ public class FoodTruckService {
 			}
 			
 			if (selection == 2){
-				exit();
+				logOwnerIn();
 			}
 			
 			System.out.println("Thank you for registering " + truckName + "!");

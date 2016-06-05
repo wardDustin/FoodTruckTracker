@@ -7,20 +7,16 @@ import java.sql.SQLException;
 
 public class FoodTruckDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
-	private Connection connect;
 	private Connect database = new Connect();
 	
 	public FoodTruckDAO(){
-		try {
-			connect = database.connectToDB();
-		} catch (Exception e){
-			e.printStackTrace();
-		}
+
 	}
     
     public boolean insert(FoodTruck truckName){
     	String insertQuery = "INSERT INTO FoodTruckTracker.FoodTruck (truckName, password, owner, foodType) VALUES (?,?,?,?)";
-    	try(PreparedStatement prepState = connect.prepareStatement(insertQuery)){
+    	try(Connection connect = database.connectToDB();
+    			PreparedStatement prepState = connect.prepareStatement(insertQuery)){
             prepState.setString(1, truckName.getName());
             prepState.setString(2, truckName.getPassword());
             prepState.setString(3, truckName.getOwner());
@@ -34,10 +30,11 @@ public class FoodTruckDAO{
     	return true;
     }
     
-    public FoodTruck select(String trucksName) throws Exception{
+    public FoodTruck select(String trucksName){
     	String queryDB = "SELECT truckID, truckName, password, owner, foodType FROM FoodTruckTracker.FoodTruck WHERE truckName = ?";
     	FoodTruck truckOwner = new FoodTruck();
-        try(PreparedStatement prepState = connect.prepareStatement(queryDB)){
+        try(Connection connect = database.connectToDB();
+        		PreparedStatement prepState = connect.prepareStatement(queryDB)){
             prepState.setString(1, trucksName);
             
             try(ResultSet resultSet = prepState.executeQuery() ){
@@ -53,7 +50,7 @@ public class FoodTruckDAO{
             }
         }
         catch (SQLException e){
-        	throw e;
+        	e.printStackTrace();
         }
         return truckOwner;
     }
@@ -73,7 +70,8 @@ public class FoodTruckDAO{
     		update = "UPDATE FoodTruckTracker.FoodTruck SET password = ? WHERE truckID = ?";
     	}
     	
-    	try(PreparedStatement prepState = connect.prepareStatement(update)){
+    	try(Connection connect = database.connectToDB();
+    			PreparedStatement prepState = connect.prepareStatement(update)){
     		prepState.setString(1, newInput);
     		prepState.setInt(2, truckID);
     		prepState.executeUpdate();

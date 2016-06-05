@@ -20,7 +20,6 @@ public class MainMenu {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		database.connectToDB();
 		int x = 0;
 		MainMenu menu = new MainMenu();
 		do{
@@ -31,9 +30,8 @@ public class MainMenu {
 			else if (x==2){
 				menu.processFoodTruckActions();
 			}
+			System.out.println(x);
 		}while (x!=3);
-		database.close();
-
 	}
 	
 	public int getUserType(){
