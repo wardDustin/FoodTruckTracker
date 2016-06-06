@@ -7,10 +7,10 @@ import java.sql.SQLException;
 
 public class FoodTruckDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
-	private Connect database = new Connect();
+	private Connect database;
 	
 	public FoodTruckDAO(){
-
+		database  = new Connect();
 	}
     
     public boolean insert(FoodTruck truckName){
@@ -42,6 +42,7 @@ public class FoodTruckDAO{
 				while (resultSet.next()){
 					truckOwner.setTruckID(resultSet.getInt("truckID"));
 					truckOwner.setName(resultSet.getString("truckName"));
+					truckOwner.setPassword(resultSet.getString("password"));
 					truckOwner.setOwner(resultSet.getString("owner"));
 					truckOwner.setFoodType(resultSet.getString("foodType"));
 					

@@ -9,10 +9,10 @@ import java.util.ArrayList;
 
 public class IngredientsDAO {
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
-	private Connect database = new Connect();
+	private Connect database;
 	
 	public IngredientsDAO(){
-
+		database = new Connect();
 	}
 	
 	public boolean insert(Ingredients ingredient){

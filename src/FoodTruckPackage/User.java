@@ -1,6 +1,7 @@
 package FoodTruckPackage;
 
 public class User {
+	private int Id;
 	private String name;
 	private String username;
 	private String password;
@@ -14,9 +15,17 @@ public class User {
 		this.address = address;
 		this.email = email;
 	}
+	
+	public int getId(){
+		return this.Id;
+	}
+	
+	public void setId(int newID){
+		this.Id = newID;
+	}
 
 	public String getEmail() {
-		return email;
+		return this.email;
 	}
 
 	public void setEmail(String email) {

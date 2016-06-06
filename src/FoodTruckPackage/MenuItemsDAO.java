@@ -8,10 +8,10 @@ import java.util.ArrayList;
 
 public class MenuItemsDAO {
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
-	private Connect database = new Connect();
+	private Connect database;
 	
 	public MenuItemsDAO(){
-
+		database = new Connect();
 	}
 	
 	public boolean insert(MenuItems item){
@@ -50,7 +50,7 @@ public class MenuItemsDAO {
 		return false;
 	}
 	
-	public MenuItems select(String foodsName, int trucksID) throws Exception{
+	public MenuItems select(String foodsName, int trucksID){
     	String queryDB = "SELECT menuID, foodName, price, calories, specialComments, truckID FROM FoodTruckTracker.Menu WHERE foodName = ? AND truckID = ?";
         MenuItems menuItem = new MenuItems();
     	try(Connection connect = database.connectToDB();
@@ -69,8 +69,8 @@ public class MenuItemsDAO {
 	            }
             }
         }
-        catch (Exception e){
-        	throw e;
+        catch (SQLException e){
+        	e.printStackTrace();
         }
         return menuItem;
     }

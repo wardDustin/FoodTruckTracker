@@ -7,13 +7,13 @@ import java.sql.SQLException;
 
 public class UserDAO{
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
-	private Connect database = new Connect();
+	private Connect database;
 	
 	public UserDAO(){
-
+		database = new Connect();
 	}
 	
-	 public boolean insert(User newUser) throws Exception{
+	 public boolean insert(User newUser){
 		 String insertQuery = "INSERT INTO FoodTruckTracker.User (username, password, name, address, email) VALUES (?,?,?,?,?)";
 		 try(Connection connect = database.connectToDB();
 				 PreparedStatement prepState = connect.prepareStatement(insertQuery)){
@@ -31,7 +31,32 @@ public class UserDAO{
 		 return true;
 	 }
 	 
-	 public boolean selectUsername(String username) throws Exception{
+	 public User selectAll(String username){
+		 String query = "SELECT Id, username, password, name, address, email FROM FoodTruckTracker.User WHERE username = ?";
+		 User user = new User();
+		 try(Connection connect = database.connectToDB();
+				 PreparedStatement prepState = connect.prepareStatement(query)){
+			 prepState.setString(1, username);
+			 try(ResultSet rs = prepState.executeQuery()){
+				 while (rs.next()){
+					 user.setId(rs.getInt("Id"));
+					 user.setUsername(rs.getString("username"));
+					 user.setPassword(rs.getString("password"));
+					 user.setName(rs.getString("name"));
+					 user.setAddress(rs.getString("address"));
+					 user.setEmail(rs.getString("email"));
+					 
+					 System.out.println("\n" + user);
+				 }
+			 }
+		 }
+		 catch (SQLException e){
+			 e.printStackTrace();
+		 }
+		 return user;
+	 }
+	 
+	 public boolean selectUsername(String username){
 		String usernameQuery = "SELECT username FROM FoodTruckTracker.User WHERE username = ?";
 		try(Connection connect = database.connectToDB();
 				PreparedStatement prepState = connect.prepareStatement(usernameQuery)){
@@ -48,7 +73,7 @@ public class UserDAO{
 		return false;
 	 }
 	 
-	 public String selectPW(String passwordQuery, String username) throws Exception{
+	 public String selectPW(String passwordQuery, String username){
 		String hashedpw = null;
 		try(Connection connect = database.connectToDB();
 				PreparedStatement prepState = connect.prepareStatement(passwordQuery)){
@@ -65,21 +90,52 @@ public class UserDAO{
 		return hashedpw;
 	 }
 	 
-	 public boolean update(String column, String newValue, String username){
-		 String updateQuery = "UPDATE FoodTruckTracker.User SET ? = ? WHERE username = ?";
-		 try(Connection connect = database.connectToDB();
-				 PreparedStatement prepState = connect.prepareStatement(updateQuery)){
-			 prepState.setString(1, column);
-			 prepState.setString(2, newValue);
-			 prepState.setString(3, username);
-			 prepState.executeUpdate();
-		 }
-		 catch (SQLException e){
-			 System.out.println(e);
-			 return false;
-		 }
-		 return true;
-	 }
+//	 public boolean updated(String column, String newValue, String username){
+//		 String updateQuery = "UPDATE FoodTruckTracker.User SET ? = ? WHERE username = ?";
+//		 try(Connection connect = database.connectToDB();
+//				 PreparedStatement prepState = connect.prepareStatement(updateQuery)){
+//			 prepState.setString(1, column);
+//			 prepState.setString(2, newValue);
+//			 prepState.setString(3, username);
+//			 prepState.executeUpdate();
+//		 }
+//		 catch (SQLException e){
+//			 System.out.println(e);
+//			 return false;
+//		 }
+//		 return true;
+//	 }
+	 
+	 public boolean update(int x, String newInput, String username){
+	    	String update = "";
+	    	if (x == 1){
+	    		update = "UPDATE FoodTruckTracker.Use SET username = ? WHERE username = ?";
+	    	}
+	    	else if (x == 2){
+	    		update = "UPDATE FoodTruckTracker.User SET name = ? WHERE username = ?";
+	    	}
+	    	else if (x == 3){
+	    		update = "UPDATE FoodTruckTracker.User SET address = ? WHERE username = ?";
+	    	}
+	    	else if (x == 4){
+	    		update = "UPDATE FoodTruckTracker.User SET email = ? WHERE username = ?";
+	    	}
+	    	else{
+	    		update = "UPDATE FoodTruckTracker.User SET password = ? WHERE username = ?";
+	    	}
+	    	
+	    	try(Connection connect = database.connectToDB();
+	    			PreparedStatement prepState = connect.prepareStatement(update)){
+	    		prepState.setString(1, newInput);
+	    		prepState.setString(2, username);
+	    		prepState.executeUpdate();
+	    	}
+	    	catch (SQLException e){
+	    		System.out.println(e);
+	    		return false;
+	    	}
+	    	return true;
+	    }
 	 
 	 public boolean delete(String username){
 		 String deleteUser = "DELETE FROM FoodTruckTracker.User WHERE username = ?";
