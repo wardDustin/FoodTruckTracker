@@ -66,8 +66,8 @@ public class User {
 	
 	@Override
 	public String toString() {
-		return "Name = " + name + ", Username = " + username + ", Address = " + address
-				+ ", Email = " + email;
+		return "Username: " + username + ", Name: " + name + ", Address: " + address
+				+ ", Email: " + email;
 	}
 	
 }

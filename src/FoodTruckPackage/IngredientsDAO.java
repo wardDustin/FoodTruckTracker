@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 //import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class IngredientsDAO {
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
@@ -57,6 +58,7 @@ public class IngredientsDAO {
 					
 					ingredientList.add(ingredient.getName());
 	    		}
+    			Collections.sort(ingredientList);
     		}
     	}
     	catch(SQLException e){

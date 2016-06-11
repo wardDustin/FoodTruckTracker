@@ -1,5 +1,7 @@
 package FoodTruckPackage;
 
+import java.util.Comparator;
+
 public class Ingredients {
 	private String name;
 	private int menuID;
@@ -24,6 +26,20 @@ public class Ingredients {
 	public void setMenuID(int newMenuID){
 		this.menuID = newMenuID;
 	}
+	
+	public static Comparator<Ingredients> ingredientsNameComp = new Comparator<Ingredients>() {
+
+		public int compare(Ingredients ing1, Ingredients ing2) {
+		   String ingredient1 = ing1.getName().toUpperCase();
+		   String ingredient2 = ing2.getName().toUpperCase();
+
+		   //ascending order
+		   return ingredient1.compareTo(ingredient2);
+
+		   //descending order
+		   //return ingredient2.compareTo(ingredient1);
+	    }
+	};
 	
 	@Override
 	public int hashCode() {

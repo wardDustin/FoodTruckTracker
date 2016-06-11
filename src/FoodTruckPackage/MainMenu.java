@@ -30,7 +30,9 @@ public class MainMenu {
 			else if (x==2){
 				menu.processFoodTruckActions();
 			}
-			System.out.println(x);
+			else{
+				System.out.println("Thank u for using FoodTruckTracker!");
+			}
 		}while (x!=3);
 	}
 	

@@ -15,18 +15,13 @@ public class Connect{
 
     public Connection connectToDB(){
         try {
-                // This will load the MySQL driver, each DB has its own driver
-                Class.forName("com.mysql.jdbc.Driver");
-
-                // Setup the connection with the DB
-                connect = DriverManager.getConnection("jdbc:mysql://" + host + "/"
+        	// Setup the connection with the DB
+        	connect = DriverManager.getConnection("jdbc:mysql://" + host + "/"
                                 + database + "?" + "user=" + user + "&password=" + password);
 
         } catch (SQLException e) {
         	e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+        }
 		return connect;
     }
 }

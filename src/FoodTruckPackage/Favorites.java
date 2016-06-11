@@ -1,18 +1,17 @@
 package FoodTruckPackage;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 
-public class FoodTruck {
+public class Favorites {
 	private int truckID;
 	private String name;
 	private String password;
 	private String owner;
 	private String foodType;
-	private ArrayList<MenuItems> menuItems;
+	private int userID;
 	
-	public FoodTruck() {}
-	public FoodTruck (String name, String owner, String foodType){
+	public Favorites() {}
+	public Favorites (String name, String owner, String foodType){
 		this.name = name;
 		this.owner = owner;
 		this.foodType = foodType;
@@ -58,25 +57,25 @@ public class FoodTruck {
 		this.foodType = foodType;
 	}
 	
-	public ArrayList<MenuItems> getMenuItems(){
-		return this.menuItems;
+	public int getUserID(){
+		return this.userID;
 	}
 	
-	public void setMenuItems(ArrayList<MenuItems> newMenuItems){
-		this.menuItems = newMenuItems;
+	public void setUserID(int newUserID){
+		this.userID = newUserID;
 	}
 	
-	public static Comparator<FoodTruck> foodTruckNameComp = new Comparator<FoodTruck>() {
+	public static Comparator<Favorites> favesTruckNameComp = new Comparator<Favorites>() {
 
-		public int compare(FoodTruck ft1, FoodTruck ft2) {
-		   String truckName1 = ft1.getName().toUpperCase();
-		   String truckName2 = ft2.getName().toUpperCase();
+		public int compare(Favorites fav1, Favorites fav2) {
+		   String fave1 = fav1.getName().toUpperCase();
+		   String fave2 = fav2.getName().toUpperCase();
 
 		   //ascending order
-		   return truckName1.compareTo(truckName2);
+		   return fave1.compareTo(fave2);
 
 		   //descending order
-		   //return truckName2.compareTo(truckName1);
+		   //return fave2.compareTo(fave1);
 	    }
 	};
 	
@@ -84,5 +83,5 @@ public class FoodTruck {
 	public String toString() {
 		return "Name: " + name + ", Owner: " + owner + ", Food Type: " + foodType;
 	}
-	
+
 }

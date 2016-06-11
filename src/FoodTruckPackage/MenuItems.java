@@ -1,6 +1,8 @@
 package FoodTruckPackage;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class MenuItems{
 
@@ -79,8 +81,24 @@ public class MenuItems{
 		this.menuID = newMenuID;
 	}
 	
+	public static Comparator<MenuItems> menuItemsNameComp = new Comparator<MenuItems>() {
+
+		public int compare(MenuItems mi1, MenuItems mi2) {
+		   String menuItem1 = mi1.getTitle().toUpperCase();
+		   String menuItem2 = mi2.getTitle().toUpperCase();
+
+		   //ascending order
+		   return menuItem1.compareTo(menuItem2);
+
+		   //descending order
+		   //return menuItem2.compareTo(menuItem1);
+	    }
+	};
+	
 	public String toString() {//fix price... prints off as 0.0
-		return "\nTitle: " + title + ", Price: $" + price + ", Ingredients: " + ingredients + ", Total Calories: " + totalCalories
+		DecimalFormat format = new DecimalFormat("0.00");
+		String formattedPrice = format.format(price);
+		return "Title: " + title + ", Price: $" + formattedPrice + ", Ingredients: " + ingredients + ", Total Calories: " + totalCalories
 				+ ", Special Comments: " + specialComments;
 	}
 	

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MenuItemsDAO {
 	//TODO: This should be used for Create/ Read (get) / Update / Destroy
@@ -75,7 +76,7 @@ public class MenuItemsDAO {
         return menuItem;
     }
 	
-	public ArrayList<MenuItems> getMenu(int truckID){
+	public ArrayList<MenuItems> getWholeMenu(int truckID){
     	String firstQ = "SELECT menuID, foodName, price, calories, specialComments FROM Menu WHERE truckID = ?";
     	ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
     	ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
@@ -96,6 +97,7 @@ public class MenuItemsDAO {
 					menuItem.setIngredients(ingredientArray);
 					menuArray.add(menuItem);
 				}
+	    		Collections.sort(menuArray, MenuItems.menuItemsNameComp);
             }
 		} catch (SQLException e) {
 			System.out.println(e);
@@ -116,6 +118,7 @@ public class MenuItemsDAO {
 					ingredients.setName(rs.getString("ingredient"));
 					ingredientArray.add(ingredients);
 				}
+	            Collections.sort(ingredientArray, Ingredients.ingredientsNameComp);
             }
 		}
 		catch (SQLException e){
@@ -141,6 +144,7 @@ public class MenuItemsDAO {
 					
 					menuList.add(menuItem.getTitle());
 	    		}
+    			Collections.sort(menuList);
     		}
     	}
     	catch(SQLException e){

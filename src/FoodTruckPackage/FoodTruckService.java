@@ -1,26 +1,42 @@
 package FoodTruckPackage;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class FoodTruckService {
 
-	private Scanner input = new Scanner(System.in);
-	private Verify verify = new Verify();
-	private FoodTruck truckOwner = new FoodTruck();
+	private Scanner input;
+	private Verify verify;
+	private FoodTruck truckOwner;
+	private Events event;
 	private FoodTruckDAO foodDAO;
-	private Ingredients ingredients = new Ingredients();
-	private MenuItemsDAO menuDAO = new MenuItemsDAO();
-	private IngredientsDAO ingredientsDAO = new IngredientsDAO();
-	private ArrayList<Ingredients> ingredientArray = new ArrayList<Ingredients>();
+	private EventsDAO eventsDAO;
+	private MenuItemsDAO menuDAO;
+	private IngredientsDAO ingredientsDAO;
+	private LocalDateTime dateTime;
+	private Ingredients ingredients;
+	private ArrayList<Ingredients> ingredientArray;
 	
 	public FoodTruckService(){
+		input = new Scanner(System.in);
+		verify = new Verify();
+		truckOwner = new FoodTruck();
+		event = new Events();
 		foodDAO = new FoodTruckDAO();
+		eventsDAO = new EventsDAO();
+		menuDAO = new MenuItemsDAO();
+		ingredientsDAO = new IngredientsDAO();
+		dateTime = LocalDateTime.now();
+		ingredients = new Ingredients();
+		ingredientArray = new ArrayList<Ingredients>();
 	}
 
 	public void logOwnerIn(){
 		String db = null;
-		System.out.println("Hello, owner! Thank you for choosing FoodTruckTracker!");
+		System.out.println("\nHello, owner! Thank you for choosing FoodTruckTracker!");
 		System.out.println("We just need to verify if you are new or a returning owner");
 		System.out.println("What is the name of your food truck?");
 		String truckName = input.nextLine();
@@ -59,6 +75,7 @@ public class FoodTruckService {
 			truckOwner.setFoodType(foodType);
 			
 			boolean success = foodDAO.insert(truckOwner);
+			truckOwner = foodDAO.select(truckOwner.getName());
 			int truckID = truckOwner.getTruckID();
 			truckOwner.setTruckID(truckID);
 			
@@ -100,12 +117,13 @@ public class FoodTruckService {
 	}
 	
 	public void loggedInOwnerMenu(){
-		System.out.println("" + truckOwner.getOwner() + ", what would you like to do next?");
-		System.out.println("1| Change your truck information  2| Manage your Menu  3| Manage your events  4| Exit");
+		System.out.println("\n" + truckOwner.getOwner() + ", welcome to the Main Menu!");
+		System.out.println("What would you like to do next:");
+		System.out.println("1| Manage your Truck Profile  2| Manage your Menu  3| Manage your events  4| Exit");
 		int selection = 0;
 		selection = verify.verifyInput(selection);
 		
-		while (selection != 1 && selection != 2 && selection != 3 && selection!=4){
+		while (selection < 1 || selection > 4){
 			System.out.println("Invalid Selection, please choose again!");
 			selection = verify.verifyInput(selection);
 		}
@@ -118,7 +136,7 @@ public class FoodTruckService {
 			System.out.println("1| Your Truck's name  2| Your password  3| Owner's name  4| Food category  5| Nevermind");
 			selection = verify.verifyInput(selection);
 			
-			while (selection != 1 && selection != 2 && selection != 3 && selection!=4 && selection!=5){
+			while (selection < 1 || selection > 5){
 				System.out.println("Invalid Selection, please choose again!");
 				selection = verify.verifyInput(selection);
 			}
@@ -260,7 +278,6 @@ public class FoodTruckService {
 			
 			if (selection == 1){
 				viewMenu();
-				loggedInOwnerMenu();
 			}
 			else if (selection == 2){
 				makeMenuItem();
@@ -276,7 +293,7 @@ public class FoodTruckService {
 				System.out.println("\nWhich would you like to update?");
 				selection = verify.verifyInput(selection);
 				
-				while(selection<0 && selection>x){
+				while(selection<0 || selection>x){
 					System.out.println("Invalid Selection, please choose again!");
 					selection = verify.verifyInput(selection);
 				}
@@ -292,7 +309,7 @@ public class FoodTruckService {
 				System.out.println("1| Food Title  2| Price  3| Total Calories  4| Special Comments  5| Ingredients  6| Nevermind");
 				selection = verify.verifyInput(selection);
 				
-				while(selection != 1 && selection != 2 && selection != 3 && selection!=4 && selection!=5 && selection!=6){
+				while(selection < 1 || selection > 6){
 					System.out.println("Invalid Selection, please choose again!");
 					System.out.println("1| Food Title  2| Price  3| Total Calories  4| Special Comments  5| Ingredients  6| Nevermind");
 					selection = verify.verifyInput(selection);
@@ -407,11 +424,11 @@ public class FoodTruckService {
 						loggedInOwnerMenu();
 					}
 					else if(selection == 2){
-						//TODO: print off ingredients with numbers (like menuItems)
-						System.out.println("Which ingredient would you like to remove: ");
+						//TODO: print off ingredients with numbers (like menuItems) make sure this is happening!!!
+						System.out.println("Which ingredient would you like to remove (type the number of the ingredient): ");
 						selection = verify.verifyInput(selection);
 						
-						while(selection<0 && selection>x){
+						while(selection < 1 || selection > x){
 							System.out.println("Invalid Selection, please choose again!");
 							selection = verify.verifyInput(selection);
 						}
@@ -446,7 +463,7 @@ public class FoodTruckService {
 				System.out.println("\nWhich would you like to delete?");
 				selection = verify.verifyInput(selection);
 				
-				while(selection<0 && selection>x){
+				while(selection < 0 || selection > x){
 					System.out.println("Invalid Selection, please choose again!");
 					selection = verify.verifyInput(selection);
 				}
@@ -477,7 +494,7 @@ public class FoodTruckService {
 			}
 		}
 		else if (selection == 3){
-			//TODO: Manage Events
+			eventHandler();
 		}
 		else{
 			exit();
@@ -488,9 +505,12 @@ public class FoodTruckService {
 		ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
 		int truckID = truckOwner.getTruckID();
 		menuArray = new ArrayList<MenuItems>();
-		System.out.println("Your current menu: ");
-		menuArray = menuDAO.getMenu(truckID);
-		System.out.println(menuArray + "\n");
+		System.out.println("\nYour current menu: ");
+		menuArray = menuDAO.getWholeMenu(truckID);
+		for (int i = 0; i < menuArray.size(); i++){
+			System.out.println(menuArray.get(i));
+		}
+		loggedInOwnerMenu();
 	}
 	
 	public void makeMenuItem(){
@@ -528,8 +548,8 @@ public class FoodTruckService {
 		
 		menuDAO.insert(menuItem);
 		menuItem = menuDAO.getMenuItem(title, truckOwner.getTruckID());
-		int menuID = menuItem.getMenuID();
-		System.out.println(menuID);
+//		menuItem.setMenuID(menuItem.getMenuID());
+		System.out.println(menuItem.getMenuID());
 		
 		System.out.println("Finally, lets add the ingredients for " + title);
 		int x = 0;
@@ -548,7 +568,7 @@ public class FoodTruckService {
 			catch(NumberFormatException e){
 				ingredients = new Ingredients();
 				ingredients.setName(y);
-				ingredients.setMenuID(menuID);
+				ingredients.setMenuID(menuItem.getMenuID());
 				
 				boolean success = ingredientsDAO.insert(ingredients); //error here???
 				if (success){
@@ -567,7 +587,286 @@ public class FoodTruckService {
 		menuItem.setIngredients(ingredientArray);
 		menuArray.add(menuItem);
 		truckOwner.setMenuItems(menuArray);
-		System.out.println("Here is your menu: " + menuArray + "\n");
+		System.out.println("Here is your menu: ");
+		
+		for (int i = 0; i < menuArray.size(); i++){
+			System.out.println(menuArray.get(i));
+		}
+	}
+	
+	public void eventHandler(){
+		//TODO: find discrepancy in time relaying
+		System.out.println("\nWelcome to your Events Manager!");
+		System.out.println("Here, you can: 1| Add an Event  2| View your Events  3| Edit an Event  4| Remove an Event  5| Return to Main Menu");
+		int selection = 0;
+		selection = verify.verifyInput(selection);
+		
+		while(selection < 1 || selection > 5){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verify.verifyInput(selection);
+		}
+		
+		if (selection == 1){
+			createEvent();
+		}
+		else if (selection == 2){
+			viewEvents();
+		}
+		else if (selection == 3){
+			editEvent();
+		}
+		else if (selection == 4){
+			deleteEvent();
+		}
+		else{
+			loggedInOwnerMenu();
+		}
+	}
+	
+	public void createEvent(){
+		Events event = new Events();
+		System.out.println("Time to make an event!");
+		System.out.println("Where is the event happening?");
+		String location = input.nextLine();
+		
+		System.out.println("What is the date and time? Must be written in this pattern: mm-dd-yyyy hh:mm AM/PM");
+		
+		makeDateTime();
+		
+		System.out.println("Okay, and do you have any notes or comments about the Event: ");
+		String notes = input.nextLine();
+		
+		event.setLocation(location);
+		event.setDateTime(dateTime);
+		event.setNotes(notes);
+		event.setTruckID(truckOwner.getTruckID());
+		
+		boolean success = eventsDAO.insert(event);
+		if (success){
+			System.out.println("Event created!");
+		}
+		else{
+			System.out.println("Event creation failed!");
+		}
+		loggedInOwnerMenu();
+	}
+	
+	public void viewEvents(){
+		ArrayList<Events> eventArray = new ArrayList<Events>();
+		int selection = 0;
+		eventArray = eventsDAO.getEventsFromTruck(truckOwner.getTruckID());
+		if (eventArray.size()==0){
+			System.out.println("You have no Events at this time! Would you like to add some?");
+			System.out.println("1| Yes  2| No");
+			selection = verify.verifyInput(selection);
+			
+			while(selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			createEvent();
+		}
+		
+		System.out.println("\nHere are your events: ");
+		
+		for (int i = 0; i < eventArray.size(); i++){
+			System.out.println(eventArray.get(i));
+		}
+		eventHandler();
+	}
+	
+	public void editEvent(){
+		int selection = 0;
+		boolean yes = true;
+		ArrayList<Events> eventArray = new ArrayList<Events>();
+		eventArray = eventsDAO.getEventsFromTruck(truckOwner.getTruckID());
+		
+		if (eventArray.size() == 0){
+			System.out.println("You have no events currently. Would you like to create one now?");
+			System.out.println("1| Yes  2| No");
+			selection = verify.verifyInput(selection);
+			while(selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 1){
+				createEvent();
+			}
+			else{
+				loggedInOwnerMenu();
+			}
+		}
+		int x = eventArray.size();
+		System.out.println("\nHere are your events: ");
+		
+		eventArray = eventsDAO.getEventsFromTruck(truckOwner.getTruckID());
+		for (int i = 0; i < x; i++){
+			System.out.println((i+1) + "| " + eventArray.get(i));
+		}
+		System.out.println("\nWhich would you like to select?");
+		selection = verify.verifyInput(selection);
+		
+		while(selection < 1 || selection > x){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verify.verifyInput(selection);
+		}
+		event = eventArray.get(selection-1);
+		
+		System.out.println("What would you like to change?");
+		System.out.println("1| Location  2| Date or Time  3| Notes about the Event  4| Nevermind");
+		selection = verify.verifyInput(selection);
+		while(selection < 1 || selection > 4){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verify.verifyInput(selection);
+		}
+		
+		if (selection == 1){
+			yes = true;
+			System.out.println("The location is currently: " + event.getLocation());
+			System.out.println("What would you like to change it to: ");
+			String newLocation = input.nextLine();
+			System.out.println("Are you sure? 1| Change location  2| Nevermind");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			boolean success = eventsDAO.update(yes, newLocation, event.getEventID());
+			if (success){
+				System.out.println("Location update successful!");
+			}
+			else{
+				System.out.println("Could not change location!");
+			}
+			loggedInOwnerMenu();
+		}
+		else if (selection == 2){
+			x = 0;
+			System.out.println("The date and time are currently set to: " + event.getDateTime());
+			System.out.println("What would you like to change it to? Must be written in this pattern: mm-dd-yyyy hh:mm AM/PM");
+			
+			dateTime = makeDateTime();
+		
+			System.out.println("Are you sure? 1| Change Date and Time  2| Nevermind");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			boolean success = eventsDAO.update(dateTime, event.getEventID());
+			if (success){
+				System.out.println("Date and Time change successful!");
+			}
+			else{
+				System.out.println("Could not change Date or Time!");
+			}
+			loggedInOwnerMenu();
+		}
+		else if (selection == 3){
+			yes = false;
+			System.out.println("Your notes are currently: " + event.getNotes());
+			System.out.println("What would you like to change them to: ");
+			String newNotes = input.nextLine();
+			System.out.println("Are you sure? 1| Change notes  2| Nevermind");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			boolean success = eventsDAO.update(yes, newNotes, event.getEventID());
+			if (success){
+				System.out.println("Note update successful!");
+			}
+			else{
+				System.out.println("Could not change notes!");
+			}
+			loggedInOwnerMenu();
+		}
+		else{
+			eventHandler();
+		}
+	}
+	
+	public void deleteEvent(){
+		ArrayList<Events> eventArray = new ArrayList<Events>();
+		Events event = new Events();
+		int selection = 0;
+		System.out.println("\nHere are your events: ");
+		
+		eventArray = eventsDAO.getEventsFromTruck(truckOwner.getTruckID());
+		int x = eventArray.size();
+		for (int i = 0; i < x; i++){
+			System.out.println((i+1) + "| " + eventArray.get(i));
+		}
+		System.out.println("\nWhich would you like to delete?");
+		selection = verify.verifyInput(selection);
+		
+		while(selection < 1 || selection > x){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verify.verifyInput(selection);
+		}
+		
+		event = eventArray.get(selection-1);
+		
+		System.out.println("Are you sure? 1| Delete Event  2| Nevermind");
+		selection = verify.verifyInput(selection);
+		
+		while (selection != 1 && selection != 2){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verify.verifyInput(selection);
+		}
+		
+		if (selection == 2){
+			loggedInOwnerMenu();
+		}
+		
+		boolean success = eventsDAO.delete(event);
+		if (success){
+			System.out.println("Deletion successful!");
+		}
+		else{
+			System.out.println("Could not delete the Event!");
+		}
+		loggedInOwnerMenu();
+	}
+	
+	public LocalDateTime makeDateTime(){
+		String dateAndTime = input.nextLine();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm a");
+		
+		try{
+			dateTime = LocalDateTime.parse(dateAndTime, formatter);
+			System.out.println(dateTime);//TODO: remove after testing
+		}
+		catch(DateTimeParseException e){
+			System.out.println("The format is: mm-dd-yyyy hh:mm AM/PM ... Please try again!");
+			makeDateTime();
+		}
+		return dateTime;
 	}
 	
 	public boolean changePW(){
@@ -604,17 +903,6 @@ public class FoodTruckService {
 			return false;
 		}
 	}
-	
-//	public int getTruckID(){
-//		int truckID = 0;
-//		try {	
-//			truckOwner = foodDAO.select(truckOwner.getName());
-//			truckID = truckOwner.getTruckID();
-//		} catch (Exception e) {
-//			System.out.println(e);
-//		}
-//		return truckID;
-//	}
 	
 	public void exit(){
 		System.out.println("\nThank you for using FoodTruckTracker!");

@@ -56,11 +56,14 @@ public class UserDAO{
 		 return user;
 	 }
 	 
-	 public boolean selectUsername(String username){
+	 /*
+	  * This checks the database to see if a user's name has been taken already
+	  */
+	 public boolean selectUsername(String newUsername){
 		String usernameQuery = "SELECT username FROM FoodTruckTracker.User WHERE username = ?";
 		try(Connection connect = database.connectToDB();
 				PreparedStatement prepState = connect.prepareStatement(usernameQuery)){
-			prepState.setString(1, username);
+			prepState.setString(1, newUsername);
 			try (ResultSet rs = prepState.executeQuery()){
 				if (rs.next()){
 					return true;
@@ -90,26 +93,10 @@ public class UserDAO{
 		return hashedpw;
 	 }
 	 
-//	 public boolean updated(String column, String newValue, String username){
-//		 String updateQuery = "UPDATE FoodTruckTracker.User SET ? = ? WHERE username = ?";
-//		 try(Connection connect = database.connectToDB();
-//				 PreparedStatement prepState = connect.prepareStatement(updateQuery)){
-//			 prepState.setString(1, column);
-//			 prepState.setString(2, newValue);
-//			 prepState.setString(3, username);
-//			 prepState.executeUpdate();
-//		 }
-//		 catch (SQLException e){
-//			 System.out.println(e);
-//			 return false;
-//		 }
-//		 return true;
-//	 }
-	 
 	 public boolean update(int x, String newInput, String username){
 	    	String update = "";
 	    	if (x == 1){
-	    		update = "UPDATE FoodTruckTracker.Use SET username = ? WHERE username = ?";
+	    		update = "UPDATE FoodTruckTracker.User SET username = ? WHERE username = ?";
 	    	}
 	    	else if (x == 2){
 	    		update = "UPDATE FoodTruckTracker.User SET name = ? WHERE username = ?";
