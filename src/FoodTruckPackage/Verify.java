@@ -31,8 +31,7 @@ public class Verify {
 		return newFloat;
 	}
 	
-	public boolean confirmPW(String name, String column, String db){
-		String pw = input.nextLine();
+	public boolean confirmPW(String name, String column, String db, String pw){
 		String passwordQuery = "SELECT password FROM " + db + " WHERE " + column + " = ?";
 		String hashedpw = userDAO.selectPW(passwordQuery, name);
 		

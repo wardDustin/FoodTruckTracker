@@ -77,6 +77,31 @@ public class FavoritesDAO {
     	return true;
 	}
 	
+	 public boolean update(int x, String newInput, int truckID){
+	    	String update = "";
+	    	if (x == 1){
+	    		update = "UPDATE FoodTruckTracker.Favorites SET truckName = ? WHERE truckID = ?";
+	    	}
+	    	else if (x == 2){
+	    		update = "UPDATE FoodTruckTracker.Favorites SET owner = ? WHERE truckID = ?";
+	    	}
+	    	else{
+	    		update = "UPDATE FoodTruckTracker.Favorites SET foodType = ? WHERE truckID = ?";
+	    	}
+	    	
+	    	try(Connection connect = database.connectToDB();
+	    			PreparedStatement prepState = connect.prepareStatement(update)){
+	    		prepState.setString(1, newInput);
+	    		prepState.setInt(2, truckID);
+	    		prepState.executeUpdate();
+	    	}
+	    	catch (SQLException e){
+	    		System.out.println(e);
+	    		return false;
+	    	}
+	    	return true;
+	    }
+	
 	public boolean deleteFave(int truckID, int userID){
 		String deleteQuery = "DELETE FROM FoodTruckTracker.Favorites WHERE truckID = ? AND userID = ?";
 		try(Connection connect = database.connectToDB();

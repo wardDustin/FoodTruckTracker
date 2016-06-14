@@ -72,6 +72,7 @@ public class UserService {
 			if (success){
 				System.out.println("New User made!");
 				user = userDAO.selectAll(username);
+				System.out.println("\n" + user);
 				loggedInUserMenu();
 			}
 			else{
@@ -82,17 +83,19 @@ public class UserService {
 		else{
 			System.out.println("Thank you " + username + "!");
 			System.out.println("Enter your password: ");
+			String pw = input.nextLine();
 			String db = "FoodTruckTracker.User";
-			boolean loggedIn = verify.confirmPW(username, "username", db);
+			boolean loggedIn = verify.confirmPW(username, "username", db, pw);
 			if (!loggedIn){
 				int x = 0;
 				while(x<2){
 					System.out.println("Password does not match Username! Please try again: ");
-					loggedIn = verify.confirmPW(username, "username", db);
+					loggedIn = verify.confirmPW(username, "username", db, pw);
 					if(loggedIn){
 						System.out.println("You are logged in");
 						x=2;
 						user = userDAO.selectAll(username);
+						System.out.println("\n" + user);
 						loggedInUserMenu();
 					}
 					x++;
@@ -103,6 +106,7 @@ public class UserService {
 			else{
 				System.out.println("You are logged in!");
 				user = userDAO.selectAll(username);
+				System.out.println("\n" + user);
 				loggedInUserMenu();
 			}
 		}
@@ -167,7 +171,7 @@ public class UserService {
 			System.out.println("What would you like to change it to: ");
 			String newUsername = input.nextLine();
 			
-			while (newUsername.length() > 15 || newUsername.length() < 3){
+			while (newUsername.length() > 15 || newUsername.length() < 3 || newUsername.trim().length() < 1){
 				System.out.println("Sorry. Your username is incorrect. It must be between 3 and 15 characters!");
 				newUsername = input.nextLine();
 			}
@@ -217,13 +221,14 @@ public class UserService {
 		}
 		else if (selection == 2){
 			System.out.println("Submit your (soon-to-be) old password: ");
+			String pw = input.nextLine();
 			String db = "FoodTruckTracker.User";
-			boolean loggedIn = verify.confirmPW(user.getUsername(), "username", db);
+			boolean loggedIn = verify.confirmPW(user.getUsername(), "username", db, pw);
 			if (!loggedIn){
 				x = 0;
 				while(x<2){
 					System.out.println("Password does not match Username! Please try again: ");
-					loggedIn = verify.confirmPW(user.getUsername(), "username", db);
+					loggedIn = verify.confirmPW(user.getUsername(), "username", db, pw);
 					if(loggedIn){
 						boolean pwChanged = changePW();
 						if (pwChanged){
@@ -468,7 +473,7 @@ public class UserService {
 		}
 		else if (selection == 2){
 			ArrayList<MenuItems> menuArray = new ArrayList<MenuItems>();
-			truckArray = foodDAO.select();
+			truckArray = foodDAO.selectAllTrucks();
 			System.out.println("\n");
 			for (int i = 0; i < truckArray.size(); i++){
 				System.out.println((i+1) + "| " + truckArray.get(i));
@@ -488,7 +493,7 @@ public class UserService {
 			ArrayList<Events> eventArray = new ArrayList<Events>();
 			EventsDAO eventsDAO = new EventsDAO();
 			System.out.println("\n");
-			truckArray = foodDAO.select();
+			truckArray = foodDAO.selectAllTrucks();
 			for (int i = 0; i < truckArray.size(); i++){
 				System.out.println((i+1) + "| " + truckArray.get(i));
 			}
@@ -587,7 +592,7 @@ public class UserService {
 	public void favoriteAFoodTruck(){
 		ArrayList<FoodTruck> truckArray = new ArrayList<FoodTruck>();
 		FoodTruck truck = new FoodTruck();
-		truckArray = foodDAO.select();
+		truckArray = foodDAO.selectAllTrucks();
 		System.out.println("\n");
 		for (int i = 0; i < truckArray.size(); i++){
 			System.out.println((i+1) + "| " + truckArray.get(i));

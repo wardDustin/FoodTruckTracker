@@ -36,17 +36,22 @@ public class FoodTruckService {
 
 	public void logOwnerIn(){
 		String db = null;
+		int selection = 0;
 		System.out.println("\nHello, owner! Thank you for choosing FoodTruckTracker!");
 		System.out.println("We just need to verify if you are new or a returning owner");
 		System.out.println("What is the name of your food truck?");
 		String truckName = input.nextLine();
+		
+		while (truckName.length() < 1 || truckName.trim().length() < 1){
+			System.out.println("Invalid username, please try again: ");
+			truckName = input.nextLine();
+		}
 		
 		truckOwner = foodDAO.select(truckName);
 		
 		if (truckOwner.getName() == null){
 			System.out.println("" + truckName + " does not exist. Would you like to register this Truck?");
 			System.out.println("1| Yes  2| No");
-			int selection = 0;
 			selection = verify.verifyInput(selection);
 			
 			while (selection != 1 && selection != 2){
@@ -61,10 +66,21 @@ public class FoodTruckService {
 			System.out.println("Thank you for registering " + truckName + "!");
 			System.out.println("Create a password please: ");
 			String pw = input.nextLine();
+			
+			while (pw.length() < 1 || pw.trim().length() < 1){
+				System.out.println("Invalid password, please try again: ");
+				pw = input.nextLine();
+			}
+			
 			pw = verify.encryptPW(pw);
 			
 			System.out.println("What is the name of the owner of " + truckName + "?");
 			String owner = input.nextLine();
+			
+			while (owner.length() < 1 || owner.trim().length() < 1){
+				System.out.println("Invalid name, please try again: ");
+				owner = input.nextLine();
+			}
 			
 			System.out.println("And what is the food type being served? (e.g. Mexican, Chinese, Greek, BBQ, etc)");
 			String foodType = input.nextLine();
@@ -91,13 +107,15 @@ public class FoodTruckService {
 		else{
 			System.out.println("Welcome back, " + truckOwner.getName());
 			System.out.println("Please enter your password to confirm: ");
+			String pw = input.nextLine();
 			db = "FoodTruckTracker.FoodTruck";
-			boolean loggedIn = verify.confirmPW(truckName, "truckName", db);
+			boolean loggedIn = verify.confirmPW(truckName, "truckName", db, pw);
 			if (!loggedIn){
 				int x = 0;
 				while(x<2){
 					System.out.println("Password does not match Username! Please try again: ");
-					loggedIn = verify.confirmPW(truckName, "truckName", db);
+					pw = input.nextLine();
+					loggedIn = verify.confirmPW(truckName, "truckName", db, pw);
 					if(loggedIn){
 						System.out.println("You are logged in, " + truckOwner.getOwner()  + "!\n");
 						loggedInOwnerMenu();
@@ -119,7 +137,7 @@ public class FoodTruckService {
 	public void loggedInOwnerMenu(){
 		System.out.println("\n" + truckOwner.getOwner() + ", welcome to the Main Menu!");
 		System.out.println("What would you like to do next:");
-		System.out.println("1| Manage your Truck Profile  2| Manage your Menu  3| Manage your events  4| Exit");
+		System.out.println("1| Truck Profile Menu  2| Food Menu menu  3| Events Menu  4| Exit");
 		int selection = 0;
 		selection = verify.verifyInput(selection);
 		
@@ -129,137 +147,7 @@ public class FoodTruckService {
 		}
 		
 		if (selection == 1){
-			int x = 0;
-			int truckID = truckOwner.getTruckID();
-			System.out.println("Truck: " + truckOwner.getName() + "  Owner: " + truckOwner.getOwner() + "  Food Category: " + truckOwner.getFoodType() + "\n");
-			System.out.println("What would you like to change:");
-			System.out.println("1| Your Truck's name  2| Your password  3| Owner's name  4| Food category  5| Nevermind");
-			selection = verify.verifyInput(selection);
-			
-			while (selection < 1 || selection > 5){
-				System.out.println("Invalid Selection, please choose again!");
-				selection = verify.verifyInput(selection);
-			}
-			
-			if (selection == 1){
-				System.out.println("What would you like to change your Truck's name to: ");
-				String newTruckName = input.nextLine();
-				System.out.println("Are you sure? 1| Change name  2| Nevermind");
-				selection = verify.verifyInput(selection);
-				
-				while (selection != 1 && selection != 2){
-					System.out.println("Invalid Selection, please choose again!");
-					selection = verify.verifyInput(selection);
-				}
-				
-				if (selection == 2){
-					loggedInOwnerMenu();
-				}
-				
-				x = 1;
-				boolean success = foodDAO.update(x, newTruckName, truckID);
-				if (success){
-					truckOwner.setName(newTruckName);
-					System.out.println("Updated successfully!\n");
-				}
-				else{
-					System.out.println("Update failed\n");
-				}
-				
-				loggedInOwnerMenu();
-			}
-			else if (selection == 2){
-				System.out.println("Submit your (soon-to-be) old password: ");
-				String db = "FoodTruckTracker.FoodTruck";
-				boolean loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db);
-				if (!loggedIn){
-					x = 0;
-					while(x<2){
-						System.out.println("Password does not match Username! Please try again: ");
-						loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db);
-						if(loggedIn){
-							boolean success = changePW();
-							if (success){
-								System.out.println("Password updated successfully!\n");
-							}
-							else{
-								System.out.println("Password update failed\n");
-							}
-							loggedInOwnerMenu();
-						}
-						x++;
-					}
-					System.out.println("Unsuccessful password change");
-					loggedInOwnerMenu();
-				}
-				else{
-					boolean success = changePW();
-					if (success){
-						System.out.println("Password updated successfully!\n");
-					}
-					else{
-						System.out.println("Password update failed\n");
-					}
-					loggedInOwnerMenu();
-				}
-			}
-			else if (selection == 3){
-				System.out.println("What would you like to change the Owner's name to: ");
-				String newOwnerName = input.nextLine();
-				System.out.println("Are you sure? 1| Change owner name  2| Nevermind");
-				selection = verify.verifyInput(selection);
-				
-				while (selection != 1 && selection != 2){
-					System.out.println("Invalid Selection, please choose again!");
-					selection = verify.verifyInput(selection);
-				}
-				
-				if (selection == 2){
-					loggedInOwnerMenu();
-				}
-				
-				x = 2;
-				boolean success = foodDAO.update(x, newOwnerName, truckID);
-				if (success){
-					truckOwner.setOwner(newOwnerName);
-					System.out.println("Updated successfully!\n");
-				}
-				else{
-					System.out.println("Update failed\n");
-				}
-				
-				loggedInOwnerMenu();
-			}
-			else if (selection == 4){
-				System.out.println("What would you like to change the food type to: ");
-				String newFoodType = input.nextLine();
-				System.out.println("Are you sure? 1| Change food type  2| Nevermind");
-				selection = verify.verifyInput(selection);
-				
-				while (selection != 1 && selection != 2){
-					System.out.println("Invalid Selection, please choose again!");
-					selection = verify.verifyInput(selection);
-				}
-				
-				if (selection == 2){
-					loggedInOwnerMenu();
-				}
-				
-				x = 3;
-				boolean success = foodDAO.update(x, newFoodType, truckID);
-				if (success){
-					truckOwner.setFoodType(newFoodType);
-					System.out.println("Updated successfully!\n");
-				}
-				else{
-					System.out.println("Update failed\n");
-				}
-				
-				loggedInOwnerMenu();
-			}
-			else{
-				loggedInOwnerMenu();
-			}
+			truckProfileHandler();
 		}
 		else if (selection == 2){ 
 			boolean hasAMenu = menuDAO.newTruck(truckOwner.getTruckID());
@@ -852,6 +740,172 @@ public class FoodTruckService {
 			System.out.println("Could not delete the Event!");
 		}
 		loggedInOwnerMenu();
+	}
+	
+	public void truckProfileHandler(){
+		FavoritesDAO favesDAO = new FavoritesDAO();
+		Favorites fave = new Favorites();
+		int x = 0;
+		int selection = 0;
+		int truckID = truckOwner.getTruckID();
+		System.out.println("Truck: " + truckOwner.getName() + "  Owner: " + truckOwner.getOwner() + "  Food Category: " + truckOwner.getFoodType() + "\n");
+		System.out.println("What would you like to change:");
+		System.out.println("1| Your Truck's name  2| Your password  3| Owner's name  4| Food category  5| Nevermind");
+		selection = verify.verifyInput(selection);
+		
+		while (selection < 1 || selection > 5){
+			System.out.println("Invalid Selection, please choose again!");
+			selection = verify.verifyInput(selection);
+		}
+		
+		if (selection == 1){
+			String oldTruckName = truckOwner.getName();
+			System.out.println("What would you like to change your Truck's name to: ");
+			String newTruckName = input.nextLine();
+			System.out.println("Are you sure? 1| Change name  2| Nevermind");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			x = 1;
+			boolean success = foodDAO.update(x, newTruckName, truckID);
+			if (success){
+				boolean success2 = favesDAO.update(x, newTruckName, truckID);
+				if (success2){
+					truckOwner.setName(newTruckName);
+					fave.setName(newTruckName);
+					System.out.println("Updated successfully!\n");
+				}
+				else{
+					foodDAO.update(x, oldTruckName, truckID);
+					System.out.println("Update failed\n");
+				}
+			}
+			else{
+				System.out.println("Update failed\n");
+			}
+			
+			loggedInOwnerMenu();
+		}
+		else if (selection == 2){
+			System.out.println("Submit your (soon-to-be) old password: ");
+			String pw = input.nextLine();
+			String db = "FoodTruckTracker.FoodTruck";
+			boolean loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db, pw);
+			if (!loggedIn){
+				x = 0;
+				while(x<2){
+					System.out.println("Password does not match Username! Please try again: ");
+					pw = input.nextLine();
+					loggedIn = verify.confirmPW(truckOwner.getName(), "truckName", db, pw);
+					if(loggedIn){
+						boolean success = changePW();
+						if (success){
+							System.out.println("Password updated successfully!\n");
+						}
+						else{
+							System.out.println("Password update failed\n");
+						}
+						loggedInOwnerMenu();
+					}
+					x++;
+				}
+				System.out.println("Unsuccessful password change");
+				loggedInOwnerMenu();
+			}
+			else{
+				boolean success = changePW();
+				if (success){
+					System.out.println("Password updated successfully!\n");
+				}
+				else{
+					System.out.println("Password update failed\n");
+				}
+				loggedInOwnerMenu();
+			}
+		}
+		else if (selection == 3){
+			String oldOwnerName = truckOwner.getOwner();
+			System.out.println("What would you like to change the Owner's name to: ");
+			String newOwnerName = input.nextLine();
+			System.out.println("Are you sure? 1| Change owner name  2| Nevermind");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			x = 2;
+			boolean success = foodDAO.update(x, newOwnerName, truckID);
+			if (success){
+				boolean success2 = favesDAO.update(x, newOwnerName, truckID);
+				if (success2){
+					truckOwner.setOwner(newOwnerName);
+					fave.setOwner(newOwnerName);
+					System.out.println("Updated successfully!\n");
+				}
+				else{
+					foodDAO.update(x, oldOwnerName, truckID);
+					System.out.println("Update failed\n");
+				}
+			}
+			else{
+				System.out.println("Update failed\n");
+			}
+			
+			loggedInOwnerMenu();
+		}
+		else if (selection == 4){
+			String oldFoodType = truckOwner.getFoodType();
+			System.out.println("What would you like to change the food type to: ");
+			String newFoodType = input.nextLine();
+			System.out.println("Are you sure? 1| Change food type  2| Nevermind");
+			selection = verify.verifyInput(selection);
+			
+			while (selection != 1 && selection != 2){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
+			if (selection == 2){
+				loggedInOwnerMenu();
+			}
+			
+			x = 3;
+			boolean success = foodDAO.update(x, newFoodType, truckID);
+			if (success){
+				boolean success2 = favesDAO.update(x, newFoodType, truckID);
+				if (success2){
+					truckOwner.setFoodType(newFoodType);
+					fave.setFoodType(newFoodType);
+					System.out.println("Updated successfully!\n");
+				}
+				else{
+					foodDAO.update(x, oldFoodType, truckID);
+					System.out.println("Update failed\n");
+				}
+			}
+			else{
+				System.out.println("Update failed\n");
+			}
+			
+			loggedInOwnerMenu();
+		}
+		else{
+			loggedInOwnerMenu();
+		}
 	}
 	
 	public LocalDateTime makeDateTime(){

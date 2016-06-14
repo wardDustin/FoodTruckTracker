@@ -1,19 +1,11 @@
 package FoodTruckPackage;
 
-//import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class MainMenu {
-	public static Connect database = new Connect();
-
-	private FoodTruck truckOwner;
 	private FoodTruckService truckService;
 	private UserService user;
 	private Verify verify;
 	
 	public MainMenu() throws Exception{
-		truckOwner = new FoodTruck();
 		truckService = new FoodTruckService();
 		user = new UserService();
 		verify = new Verify();
@@ -57,27 +49,5 @@ public class MainMenu {
 	
 	public void processFoodTruckActions() throws Exception{
 		truckService.logOwnerIn();
-	}
-	
-	public boolean parseSelect(ResultSet resultSet){
-		try {
-			while (resultSet.next()){
-				int truckID = resultSet.getInt("truckID");
-				String truckName = resultSet.getString("truckName");
-				String owner = resultSet.getString("owner");
-				String foodType = resultSet.getString("foodType");
-				
-				System.out.println("Truck: " + truckName + "  Owner: " + owner + "  Food Category: " + foodType + "\n");
-				truckOwner.setTruckID(truckID);
-				truckOwner.setName(truckName);
-				truckOwner.setOwner(owner);
-				truckOwner.setFoodType(foodType);
-				return true;
-			}
-			return false;
-		} catch (SQLException e) {
-			System.out.println(e);
-		}
-		return false;
 	}
 }

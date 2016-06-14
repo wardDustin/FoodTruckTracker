@@ -67,7 +67,7 @@ public class FoodTruckDAO{
     /*
      * Returns all trucks in an alphabetically sorted array list
      */
-    public ArrayList<FoodTruck> select(){
+    public ArrayList<FoodTruck> selectAllTrucks(){
     	String queryDB = "SELECT truckID, truckName, password, owner, foodType FROM FoodTruckTracker.FoodTruck";
     	ArrayList<FoodTruck> truckArray = new ArrayList<FoodTruck>();
         try(Connection connect = database.connectToDB();
