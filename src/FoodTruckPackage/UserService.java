@@ -479,7 +479,13 @@ public class UserService {
 				System.out.println((i+1) + "| " + truckArray.get(i));
 			}
 			System.out.println("\nWhich Food Truck would you like to select: ");
-			selection = input.nextInt();
+			selection = verify.verifyInput(selection);
+			
+			while (selection < 1 || selection > truckArray.size()){
+				System.out.println("Invalid Selection, please choose again!");
+				selection = verify.verifyInput(selection);
+			}
+			
 			truck = truckArray.get(selection-1);
 			System.out.println("You have chosen: " + truck);
 			System.out.println("\nHere is the menu for " + truck.getName() + ":");
