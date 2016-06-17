@@ -81,7 +81,7 @@ public class Favorites {
 	
 	@Override
 	public String toString() {
-		return "Name: " + name + ", Owner: " + owner + ", Food Type: " + foodType;
+		return "Truck: " + name + ", Owner: " + owner + ", Food Type: " + foodType;
 	}
 
 }
