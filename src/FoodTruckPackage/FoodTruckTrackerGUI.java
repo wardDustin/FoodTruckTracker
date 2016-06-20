@@ -1,7 +1,5 @@
 package FoodTruckPackage;
 
-import java.awt.Dialog;
-import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,6 +15,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
@@ -27,20 +27,20 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 public class FoodTruckTrackerGUI extends Application{
-	private Stage window;
+	private Stage window, primaryStage;
 	private Scene openingScene, userScene, ownerScene, userServiceScene, ownerServiceScene;
 	private User user = new User();
 	private FoodTruck truckOwner = new FoodTruck();
+	private Favorites fave = new Favorites();
 	private UserDAO userDAO = new UserDAO();
 	private FoodTruckDAO foodDAO = new FoodTruckDAO();
 	private FavoritesDAO favesDAO = new FavoritesDAO();
+	ArrayList<Favorites> faveArray = new ArrayList<Favorites>();
 	private Verify verify = new Verify();
 	private Alert alert = new Alert(AlertType.ERROR);
 
@@ -48,6 +48,23 @@ public class FoodTruckTrackerGUI extends Application{
 	public void start(Stage primaryStage){
 		window = primaryStage;
 		
+		openingScene = buildOpeningScene();
+		
+		userScene = buildUserScene();
+		
+		ownerScene = buildOwnerScene();
+		
+		userServiceScene = buildUserServiceScene();
+		
+		ownerServiceScene = buildOwnerServiceScene();
+		
+		window.setScene(openingScene);
+		window.setTitle("Welcome to FoodTruckTracker!");
+		window.show();
+		
+	}
+	
+	public Scene buildOpeningScene(){
 		/*
 		 * Opening Scene to distinguish User from Owner
 		 */
@@ -73,6 +90,10 @@ public class FoodTruckTrackerGUI extends Application{
 		openingScene = new Scene(originalGrid, 600, 550);
 		openingScene.getStylesheets().add(FoodTruckTrackerGUI.class.getResource("Login.css").toExternalForm());
 		
+		return openingScene;
+	}
+	
+	public Scene buildUserScene(){
 		/*
 		 * Start of userScene
 		 */
@@ -149,6 +170,10 @@ public class FoodTruckTrackerGUI extends Application{
 		userScene = new Scene(userGrid, 600, 550);
 		userScene.getStylesheets().add(FoodTruckTrackerGUI.class.getResource("Login.css").toExternalForm());
 		
+		return userScene;
+	}
+	
+	public Scene buildOwnerScene(){
 		/*
 		 * Start of Owner Scene
 		 */
@@ -220,6 +245,10 @@ public class FoodTruckTrackerGUI extends Application{
 		ownerScene = new Scene(ownerGrid, 600, 550);
 		ownerScene.getStylesheets().add(FoodTruckTrackerGUI.class.getResource("Login.css").toExternalForm());
 		
+		return ownerScene;
+	}
+	
+	public Scene buildUserServiceScene(){
 		/*
 		 * Start of UserServiceScene
 		 */
@@ -356,7 +385,6 @@ public class FoodTruckTrackerGUI extends Application{
 			@Override public void handle(ActionEvent e) {
 				userList.setVisible(false);
 				userList2.setVisible(true);
-				ArrayList<Favorites> faveArray = new ArrayList<Favorites>();
 				faveArray = favesDAO.displayFaves(user.getId());
 				ObservableList<Favorites> faveObserve = FXCollections.observableArrayList(faveArray);
 				changeProfile.setText("Choose an option, please:");
@@ -396,274 +424,333 @@ public class FoodTruckTrackerGUI extends Application{
 		executeBtn.setOnAction(new EventHandler<ActionEvent>() {
             
 			@Override public void handle(ActionEvent e) {
-				if (usernameRB.isSelected()){
-					TextInputDialog dialog = new TextInputDialog("");
-					dialog.setTitle("Change Username");
-					dialog.setHeaderText("Old username: " + user.getUsername());
-					dialog.setContentText("Please enter new Username\nMust be between 3 and 15 characters:");
-					
-					Optional<String> result = dialog.showAndWait();
-					if (result.isPresent()){
-					   String newUsername = result.get();
-					   
-					   if (newUsername.length() > 15 || newUsername.length() < 3 || newUsername.trim().length() < 1){
+				if (userProfileHBox.isVisible() == true){
+					if (usernameRB.isSelected()){
+						TextInputDialog dialog = new TextInputDialog("");
+						dialog.setTitle("Change Username");
+						dialog.setHeaderText("Old username: " + user.getUsername());
+						dialog.setContentText("Please enter new Username\nMust be between 3 and 15 characters:");
+						
+						Optional<String> result = dialog.showAndWait();
+						if (result.isPresent()){
+						   String newUsername = result.get();
 						   
-						   alert.setTitle("Error Dialog");
-						   alert.setHeaderText(null);
-						   alert.setContentText("Invalid Username");
-						   alert.showAndWait();
-					   }
-					   else{
-						   boolean found = userDAO.selectUsername(newUsername);
-						   if (found){
-							   alert.setContentText("Username taken!");
+						   if (newUsername.length() > 15 || newUsername.length() < 3 || newUsername.trim().length() < 1){
+							   
+							   alert.setTitle("Error Dialog");
+							   alert.setHeaderText(null);
+							   alert.setContentText("Invalid Username");
 							   alert.showAndWait();
 						   }
 						   else{
-							   boolean success = userDAO.update(1, newUsername, user.getUsername());
+							   boolean found = userDAO.selectUsername(newUsername);
+							   if (found){
+								   alert.setContentText("Username taken!");
+								   alert.showAndWait();
+							   }
+							   else{
+								   boolean success = userDAO.update(1, newUsername, user.getUsername());
+									if (success){
+										user.setUsername(newUsername);
+										alert = new Alert(AlertType.CONFIRMATION);
+										alert.setContentText("Username updated!");
+										alert.showAndWait();
+										userList.getItems().clear();
+										ObservableList<User> userObserve = FXCollections.observableArrayList(user);
+										userList.setItems(userObserve);
+									}
+									else{
+										alert.setContentText("Error with Username change");
+										alert.showAndWait();
+									}
+							   }
+						   }
+						}
+					}
+					else if(passwordRB.isSelected()){
+						PasswordField pwField = new PasswordField();
+						final Stage dialog = new Stage();
+		                dialog.initModality(Modality.APPLICATION_MODAL);
+		                dialog.initOwner(primaryStage);
+		                
+		                GridPane newGrid = new GridPane();
+		                newGrid.setAlignment(Pos.CENTER);
+		                newGrid.setHgap(10);
+		                newGrid.setVgap(25);
+		                newGrid.setPadding(new Insets(25, 25, 25, 25));
+		                
+		                Button Ok = new Button("OK");
+		                Ok.isDefaultButton();
+		                Button Cancel = new Button("CANCEL");
+		                Cancel.isCancelButton();
+		                
+		                HBox dialogHbox = new HBox(10);
+		                HBox dBox = new HBox(10);
+		                dialogHbox.setAlignment(Pos.CENTER);
+		                dialogHbox.getChildren().addAll(new Label("Old Password:"), pwField);
+		                dBox.setAlignment(Pos.BOTTOM_RIGHT);
+		                dBox.getChildren().addAll(Ok, Cancel);
+		                newGrid.add(dialogHbox, 0, 0);
+		                newGrid.add(dBox, 0, 1);
+		                Scene dialogScene = new Scene(newGrid, 350, 100);
+		                dialog.setScene(dialogScene);
+		                dialog.show();
+		                
+		                Ok.setOnAction(new EventHandler<ActionEvent>() {
+	            
+		                	@Override public void handle(ActionEvent e) {
+		                		String oldPW = pwField.getText();
+		                		String db = "FoodTruckTracker.User";
+		            			boolean loggedIn = verify.confirmPW(user.getUsername(), "username", db, oldPW);
+		            			if(!loggedIn){
+		            				alert.setTitle("Error Dialog");
+		            				alert.setHeaderText(null);
+		            				alert.setContentText("Incorrect Password");
+		            				alert.showAndWait();
+		            				dialog.close();
+		            			}
+			            		else{
+			            			PasswordField newPWField = new PasswordField();
+			            			PasswordField confirmPWField = new PasswordField();
+			    					final Stage dialog2 = new Stage();
+			    					dialog2.initModality(Modality.APPLICATION_MODAL);
+			    					dialog2.initOwner(primaryStage);
+			    	                
+			    	                GridPane newGrid2 = new GridPane();
+			    	                newGrid2.setAlignment(Pos.CENTER);
+			    	                newGrid2.setHgap(10);
+			    	                newGrid2.setVgap(25);
+			    	                newGrid2.setPadding(new Insets(25, 25, 25, 25));
+			    	                
+			    	                Button Ok2 = new Button("OK");
+			    	                Ok2.isDefaultButton();
+			    	                Button Cancel2 = new Button("CANCEL");
+			    	                Cancel2.isCancelButton();
+			    	                
+			    	                HBox pwHBox2 = new HBox(10);
+			    	                HBox confirmHBox2 = new HBox(10);
+			    	                HBox dBox2 = new HBox(10);
+			    	                
+			    	                pwHBox2.setAlignment(Pos.CENTER);
+			    	                pwHBox2.getChildren().addAll(new Label("New Password:"), newPWField);
+			    	                confirmHBox2.setAlignment(Pos.CENTER);
+			    	                confirmHBox2.getChildren().addAll(new Label("Confirm Password:"), confirmPWField);
+			    	                dBox2.setAlignment(Pos.BOTTOM_RIGHT);
+			    	                dBox2.getChildren().addAll(Ok2, Cancel2);
+			    	                
+			    	                newGrid2.add(new Label("Password Accepted!"), 0, 0);
+			    	                newGrid2.add(pwHBox2, 0, 1);
+			    	                newGrid2.add(confirmHBox2, 0, 2);
+			    	                newGrid2.add(dBox2, 0, 3);
+			    	                Scene dialogScene2 = new Scene(newGrid2, 400, 250);
+			    	                dialog2.setScene(dialogScene2);
+			    	                dialog2.show();
+			    	                
+			            			
+			    	                Ok2.setOnAction(new EventHandler<ActionEvent>() {
+		            
+					                	@Override public void handle(ActionEvent e) {
+					                		if(!Objects.equals(newPWField.getText(), confirmPWField.getText())){
+					                			alert.setTitle("Error Dialog");
+					            				alert.setHeaderText(null);
+					            				alert.setContentText("Passwords don't match!");
+					            				alert.showAndWait();
+					            				dialog2.close();
+					                		}
+					                		else{
+					                			String hashedPW = verify.encryptPW(newPWField.getText());
+					                			
+					                			boolean success = userDAO.update(5, hashedPW, user.getUsername());
+					                			if (success){
+					                				user.setPassword(hashedPW);
+					                				alert.setAlertType(AlertType.CONFIRMATION);
+					                				alert.setTitle("Password Changed");
+					                				alert.setHeaderText(null);
+					                				alert.setContentText("New password accepted!\nSuccessfully changed!");
+					                				alert.showAndWait();
+					                				dialog2.close();
+					                			}
+					                			else{
+					                				alert.setTitle("Error Dialog");
+						            				alert.setHeaderText(null);
+						            				alert.setContentText("Password change failed!");
+						            				alert.showAndWait();
+					                			}
+					                		}
+					                		dialog2.close();
+					                	}
+			    	                });
+			    	                Cancel2.setOnAction(ex -> dialog2.close());
+			                		
+			    	                dialog.close();
+		            			}
+		                	}
+		                });
+		                
+		                Cancel.setOnAction(ex -> dialog.close());
+					}
+					else if(nameRB.isSelected()){
+						TextInputDialog dialog = new TextInputDialog("");
+						dialog.setTitle("Change Username");
+						dialog.setHeaderText("Old name: " + user.getName());
+						dialog.setContentText("Please enter a new Name:");
+						
+						Optional<String> result = dialog.showAndWait();
+						if (result.isPresent()){
+						   String newName = result.get();
+						   
+						   if (newName.trim().length() < 1){
+							   
+							   alert.setTitle("Error Dialog");
+							   alert.setHeaderText(null);
+							   alert.setContentText("You must input a name");
+							   alert.showAndWait();
+						   }
+						   else{
+							   boolean success = userDAO.update(2, newName, user.getUsername());
 								if (success){
-									user.setUsername(newUsername);
+									user.setName(newName);
 									alert = new Alert(AlertType.CONFIRMATION);
-									alert.setContentText("Username updated!");
+									alert.setContentText("Name updated!");
 									alert.showAndWait();
 									userList.getItems().clear();
 									ObservableList<User> userObserve = FXCollections.observableArrayList(user);
 									userList.setItems(userObserve);
 								}
 								else{
-									alert.setContentText("Error with Username change");
+									alert.setContentText("Error with Name change");
+									alert.showAndWait();
+								}
+							} 
+						}
+					}
+					else if(addressRB.isSelected()){
+						TextInputDialog dialog = new TextInputDialog("");
+						dialog.setTitle("Change address");
+						dialog.setHeaderText("Old address: " + user.getAddress());
+						dialog.setContentText("Please enter a new address:");
+						
+						Optional<String> result = dialog.showAndWait();
+						if (result.isPresent()){
+						   String newAddress = result.get();
+						   
+						   if (newAddress.trim().length() < 1){
+							   
+							   alert.setTitle("Error Dialog");
+							   alert.setHeaderText(null);
+							   alert.setContentText("You must input an address");
+							   alert.showAndWait();
+						   }
+						   else{
+							   boolean success = userDAO.update(3, newAddress, user.getUsername());
+								if (success){
+									user.setAddress(newAddress);
+									alert = new Alert(AlertType.CONFIRMATION);
+									alert.setContentText("Address updated!");
+									alert.showAndWait();
+									userList.getItems().clear();
+									ObservableList<User> userObserve = FXCollections.observableArrayList(user);
+									userList.setItems(userObserve);
+								}
+								else{
+									alert.setContentText("Error with address change");
 									alert.showAndWait();
 								}
 						   }
-					   }
-					}
-				}
-				else if(passwordRB.isSelected()){
-					PasswordField pwField = new PasswordField();
-					final Stage dialog = new Stage();
-	                dialog.initModality(Modality.APPLICATION_MODAL);
-	                dialog.initOwner(primaryStage);
-	                
-	                GridPane newGrid = new GridPane();
-	                newGrid.setAlignment(Pos.CENTER);
-	                newGrid.setHgap(10);
-	                newGrid.setVgap(25);
-	                newGrid.setPadding(new Insets(25, 25, 25, 25));
-	                
-	                Button Ok = new Button("OK");
-	                Ok.isDefaultButton();
-	                Button Cancel = new Button("CANCEL");
-	                Cancel.isCancelButton();
-	                
-	                HBox dialogHbox = new HBox(10);
-	                HBox dBox = new HBox(10);
-	                dialogHbox.setAlignment(Pos.CENTER);
-	                dialogHbox.getChildren().addAll(new Label("Old Password:"), pwField);
-	                dBox.setAlignment(Pos.BOTTOM_RIGHT);
-	                dBox.getChildren().addAll(Ok, Cancel);
-	                newGrid.add(dialogHbox, 0, 0);
-	                newGrid.add(dBox, 0, 1);
-	                Scene dialogScene = new Scene(newGrid, 350, 100);
-	                dialog.setScene(dialogScene);
-	                dialog.show();
-	                
-	                Ok.setOnAction(new EventHandler<ActionEvent>() {
-            
-	                	@Override public void handle(ActionEvent e) {
-	                		String oldPW = pwField.getText();
-	                		String db = "FoodTruckTracker.User";
-	            			boolean loggedIn = verify.confirmPW(user.getUsername(), "username", db, oldPW);
-	            			if(!loggedIn){
-	            				alert.setTitle("Error Dialog");
-	            				alert.setHeaderText(null);
-	            				alert.setContentText("Incorrect Password");
-	            				alert.showAndWait();
-	            				dialog.close();
-	            			}
-		            		else{
-		            			PasswordField newPWField = new PasswordField();
-		            			PasswordField confirmPWField = new PasswordField();
-		    					final Stage dialog2 = new Stage();
-		    					dialog2.initModality(Modality.APPLICATION_MODAL);
-		    					dialog2.initOwner(primaryStage);
-		    	                
-		    	                GridPane newGrid2 = new GridPane();
-		    	                newGrid2.setAlignment(Pos.CENTER);
-		    	                newGrid2.setHgap(10);
-		    	                newGrid2.setVgap(25);
-		    	                newGrid2.setPadding(new Insets(25, 25, 25, 25));
-		    	                
-		    	                Button Ok2 = new Button("OK");
-		    	                Ok2.isDefaultButton();
-		    	                Button Cancel2 = new Button("CANCEL");
-		    	                Cancel2.isCancelButton();
-		    	                
-		    	                HBox pwHBox2 = new HBox(10);
-		    	                HBox confirmHBox2 = new HBox(10);
-		    	                HBox dBox2 = new HBox(10);
-		    	                
-		    	                pwHBox2.setAlignment(Pos.CENTER);
-		    	                pwHBox2.getChildren().addAll(new Label("New Password:"), newPWField);
-		    	                confirmHBox2.setAlignment(Pos.CENTER);
-		    	                confirmHBox2.getChildren().addAll(new Label("Confirm Password:"), confirmPWField);
-		    	                dBox2.setAlignment(Pos.BOTTOM_RIGHT);
-		    	                dBox2.getChildren().addAll(Ok2, Cancel2);
-		    	                
-		    	                newGrid2.add(pwHBox2, 0, 0);
-		    	                newGrid2.add(confirmHBox2, 0, 1);
-		    	                newGrid2.add(dBox, 0, 2);
-		    	                Scene dialogScene2 = new Scene(newGrid2, 400, 250);
-		    	                dialog2.setScene(dialogScene2);
-		    	                dialog2.show();
-		    	                
-		            			
-		    	                Ok2.setOnAction(new EventHandler<ActionEvent>() {
-	            
-				                	@Override public void handle(ActionEvent e) {
-				                		if(!Objects.equals(newPWField.getText(), confirmPWField.getText())){
-				                			alert.setTitle("Error Dialog");
-				            				alert.setHeaderText(null);
-				            				alert.setContentText("Passwords don't match!");
-				            				alert.showAndWait();
-				            				dialog2.close();
-				                		}
-				                		else{
-				                			String hashedPW = verify.encryptPW(newPWField.getText());
-				                			
-				                			boolean success = userDAO.update(5, hashedPW, user.getUsername());
-				                			if (success){
-				                				user.setPassword(hashedPW);
-				                				dialog2.close();
-				                			}
-				                			else{
-				                				alert.setTitle("Error Dialog");
-					            				alert.setHeaderText(null);
-					            				alert.setContentText("Password change failed!");
-					            				alert.showAndWait();
-				                			}
-				                		}
-				                		dialog2.close();
-				                	}
-		    	                });
-		    	                Cancel2.setOnAction(ex -> dialog2.close());
-		                		
-		    	                dialog.close();
-	            			}
-	                	}
-	                });
-	                
-	                Cancel.setOnAction(ex -> dialog.close());
-	                
-					
-//					GET TO WORK by creating custom dialog pane
-//					TextInputDialog pwDialog = new TextInputDialog();
-					
-				}
-				else if(nameRB.isSelected()){
-					TextInputDialog dialog = new TextInputDialog("");
-					dialog.setTitle("Change Username");
-					dialog.setHeaderText("Old name: " + user.getName());
-					dialog.setContentText("Please enter a new Name:");
-					
-					Optional<String> result = dialog.showAndWait();
-					if (result.isPresent()){
-					   String newName = result.get();
-					   
-					   if (newName.trim().length() < 1){
 						   
-						   alert.setTitle("Error Dialog");
-						   alert.setHeaderText(null);
-						   alert.setContentText("You must input a name");
-						   alert.showAndWait();
-					   }
-					   else{
-						   boolean success = userDAO.update(2, newName, user.getUsername());
-							if (success){
-								user.setName(newName);
-								alert = new Alert(AlertType.CONFIRMATION);
-								alert.setContentText("Name updated!");
-								alert.showAndWait();
-								userList.getItems().clear();
-								ObservableList<User> userObserve = FXCollections.observableArrayList(user);
-								userList.setItems(userObserve);
-							}
-							else{
-								alert.setContentText("Error with Name change");
-								alert.showAndWait();
-							}
-						} 
+						}
 					}
-				}
-				else if(addressRB.isSelected()){
-					TextInputDialog dialog = new TextInputDialog("");
-					dialog.setTitle("Change address");
-					dialog.setHeaderText("Old address: " + user.getAddress());
-					dialog.setContentText("Please enter a new address:");
-					
-					Optional<String> result = dialog.showAndWait();
-					if (result.isPresent()){
-					   String newAddress = result.get();
-					   
-					   if (newAddress.trim().length() < 1){
+					else if(emailRB.isSelected()){
+						TextInputDialog dialog = new TextInputDialog("");
+						dialog.setTitle("Change email address");
+						dialog.setHeaderText("Old email address: " + user.getEmail());
+						dialog.setContentText("Please enter new email address:");
+						
+						Optional<String> result = dialog.showAndWait();
+						if (result.isPresent()){
+						   String newEmail = result.get();
 						   
-						   alert.setTitle("Error Dialog");
-						   alert.setHeaderText(null);
-						   alert.setContentText("You must input an address");
-						   alert.showAndWait();
-					   }
-					   else{
-						   boolean success = userDAO.update(3, newAddress, user.getUsername());
-							if (success){
-								user.setAddress(newAddress);
-								alert = new Alert(AlertType.CONFIRMATION);
-								alert.setContentText("Address updated!");
-								alert.showAndWait();
-								userList.getItems().clear();
-								ObservableList<User> userObserve = FXCollections.observableArrayList(user);
-								userList.setItems(userObserve);
-							}
-							else{
-								alert.setContentText("Error with address change");
-								alert.showAndWait();
-							}
-					   }
-					   
-					}
-				}
-				else if(emailRB.isSelected()){
-					TextInputDialog dialog = new TextInputDialog("");
-					dialog.setTitle("Change email address");
-					dialog.setHeaderText("Old email address: " + user.getEmail());
-					dialog.setContentText("Please enter new email address:");
-					
-					Optional<String> result = dialog.showAndWait();
-					if (result.isPresent()){
-					   String newEmail = result.get();
-					   
-					   if (newEmail.trim().length() < 1){
-						   
-						   alert.setTitle("Error Dialog");
-						   alert.setHeaderText(null);
-						   alert.setContentText("You must input an email address");
-						   alert.showAndWait();
-					   }
-					   else{
-						   boolean success = userDAO.update(4, newEmail, user.getUsername());
-							if (success){
-								user.setEmail(newEmail);
-								alert = new Alert(AlertType.CONFIRMATION);
-								alert.setContentText("Email address updated!");
-								alert.showAndWait();
-								userList.getItems().clear();
-								ObservableList<User> userObserve = FXCollections.observableArrayList(user);
-								userList.setItems(userObserve);
-							}
-							else{
-								alert.setContentText("Error with email address change");
-								alert.showAndWait();
+						   if (newEmail.trim().length() < 1){
+							   
+							   alert.setTitle("Error Dialog");
+							   alert.setHeaderText(null);
+							   alert.setContentText("You must input an email address");
+							   alert.showAndWait();
+						   }
+						   else{
+							   boolean success = userDAO.update(4, newEmail, user.getUsername());
+								if (success){
+									user.setEmail(newEmail);
+									alert.setAlertType(AlertType.CONFIRMATION);
+									alert.setContentText("Email address updated!");
+									alert.showAndWait();
+									userList.getItems().clear();
+									ObservableList<User> userObserve = FXCollections.observableArrayList(user);
+									userList.setItems(userObserve);
+								}
+								else{
+									alert.setContentText("Error with email address change");
+									alert.showAndWait();
+								}
 							}
 						}
 					}
+				}
+				else if (userFavesHBox.isVisible() == true){
+//					removeFaveRB, faveMenuRB, faveEventsRB
+					if (removeFaveRB.isSelected()){
+						fave = userList2.getSelectionModel().getSelectedItem();
+						if (fave!=null){
+							alert.setAlertType(AlertType.CONFIRMATION);
+							alert.setHeaderText("" + fave);
+							alert.setContentText("Are you sure you want to remove " + fave.getName() + "?");
+							
+							ButtonType buttonTypeYes = new ButtonType("Yes");
+							ButtonType buttonTypeCancel = new ButtonType("No", ButtonData.CANCEL_CLOSE);
+							
+							alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeCancel);
+							
+							Optional<ButtonType> result = alert.showAndWait();
+							
+							if (result.get() == buttonTypeYes){
+								boolean success = favesDAO.deleteFave(fave.getTruckID(), user.getId());
+								if (success){
+									alert = new Alert(AlertType.INFORMATION);
+									alert.setContentText("Favorite Removed");
+									alert.showAndWait();
+									faveArray = favesDAO.displayFaves(user.getId());
+									userList2.getItems().clear();
+									ObservableList<Favorites> faveObserve = FXCollections.observableArrayList(faveArray);
+									userList2.setItems(faveObserve);
+								}
+								else{
+									alert.setAlertType(AlertType.ERROR);
+									alert.setContentText("Favorite Removal failed!");
+									alert.showAndWait();
+								}
+							}
+						}
+					}
+					else if (faveMenuRB.isSelected()){
+						fave = userList2.getSelectionModel().getSelectedItem();
+						if (fave!=null){
+							System.out.println(fave);
+							//TODO: do stuff
+						}
+					}
+					else if (faveEventsRB.isSelected()){
+						fave = userList2.getSelectionModel().getSelectedItem();
+						if (fave!=null){
+							System.out.println(fave);
+							//TODO: do stuff
+						}
+					}
+				}
+				else if (userTrucksHBox.isVisible() == true){
+					
+				}
+				else if (userEventsHBox.isVisible() == true){
+					
 				}
 			}
 		});
@@ -671,10 +758,12 @@ public class FoodTruckTrackerGUI extends Application{
 		userServiceScene = new Scene(userServiceGrid, 600, 550);
 		userServiceScene.getStylesheets().add(FoodTruckTrackerGUI.class.getResource("Login.css").toExternalForm());
 		
-		window.setScene(openingScene);
-		window.setTitle("Welcome to FoodTruckTracker!");
-		window.show();
-		
+		return userServiceScene;
+	}
+	
+	public Scene buildOwnerServiceScene(){
+		//TODO: all of this
+		return ownerServiceScene;
 	}
 	
 	public static void main (String[] args){
